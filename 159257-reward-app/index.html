@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>리워드 앱 포인트 흐름 데모</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --bg:#f2f2ee; --ink:#16181b; --ink2:#4d525a; --ink3:#8b9099; --line:#e4e4df; --soft:#f6f6f3;
+  --coin:#ffc23d; --coin-d:#b57f00; --green:#158a4f; --green-bg:#e5f4ea; --red:#c8372d; --red-bg:#fbe9e7; --amber:#a86400; --amber-bg:#fdf1dc; --blue:#2456c9; --blue-bg:#e9effc;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer}
+.wrap{display:grid;grid-template-columns:390px 1fr;gap:28px;max-width:1360px;margin:0 auto;padding:28px;align-items:start}
+.note{grid-column:1/-1;display:flex;justify-content:space-between;gap:16px;font-size:12.5px;color:var(--ink3);flex-wrap:wrap}
+.note b{color:var(--ink);font-size:15px}
+
+/* phone */
+.phone{width:390px;height:800px;border:11px solid #121417;border-radius:44px;background:#fff;overflow:hidden;position:sticky;top:28px;display:flex;flex-direction:column;box-shadow:0 24px 48px -20px rgba(0,0,0,.3)}
+.sb{height:40px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-size:12.5px;font-weight:600}
+.pv{flex:1;overflow-y:auto;scrollbar-width:none}
+.pv::-webkit-scrollbar{display:none}
+.tabs{flex:none;height:72px;border-top:1px solid var(--line);display:flex;padding-bottom:16px}
+.tabs button{flex:1;border:0;background:none;font-size:11px;color:var(--ink3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.tabs button.on{color:var(--ink);font-weight:700}
+.tabs svg{width:22px;height:22px}
+.top{padding:6px 18px 0;display:flex;justify-content:space-between;align-items:center}
+.top h1{font-size:19px;margin:0}
+.bal{margin:14px 18px 0;background:var(--ink);color:#fff;border-radius:18px;padding:18px}
+.bal span{font-size:12px;color:#a9adb4}
+.bal .n{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:8px;margin-top:2px}
+.coin{width:22px;height:22px;border-radius:50%;background:var(--coin);display:inline-flex;align-items:center;justify-content:center;color:#7a5300;font-size:12px;font-weight:800;flex:none}
+.bal .row{display:flex;justify-content:space-between;margin-top:12px;font-size:12px;color:#a9adb4}
+.bal .row b{color:#fff;font-weight:600}
+.sec{padding:0 18px}
+.sec h2{font-size:15px;margin:22px 0 10px;display:flex;justify-content:space-between;align-items:baseline}
+.sec h2 small{font-size:12px;color:var(--ink3);font-weight:500}
+.att{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.att div{aspect-ratio:1;border-radius:12px;background:var(--soft);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10.5px;color:var(--ink3)}
+.att div b{font-size:12px;color:var(--ink2)}
+.att div.ok{background:#fff6dd;color:var(--coin-d)}
+.att div.ok b{color:var(--coin-d)}
+.att div.today{outline:2px solid var(--ink);outline-offset:-2px}
+.btn{width:100%;height:48px;border-radius:14px;border:0;background:var(--ink);color:#fff;font-weight:700;font-size:15px;margin-top:10px}
+.btn:disabled{background:#d2d3d0;color:#fff;cursor:not-allowed}
+.ms{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.ms .ic{width:40px;height:40px;border-radius:12px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ink2);flex:none}
+.ms .c{flex:1;min-width:0}
+.ms .c b{font-size:14px;display:block}
+.ms .c span{font-size:12px;color:var(--ink3)}
+.ms button{border:0;border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;background:#fff6dd;color:var(--coin-d);white-space:nowrap}
+.ms button:disabled{background:var(--soft);color:var(--ink3);cursor:not-allowed}
+.gift{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gift div{border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer}
+.gift div:hover{border-color:var(--ink3)}
+.gift .img{height:72px;border-radius:10px;margin-bottom:8px}
+.gift b{display:block;font-size:13.5px}
+.gift span{font-size:12.5px;color:var(--coin-d);font-weight:700}
+.hist div{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.hist small{display:block;color:var(--ink3);font-size:11.5px}
+.plus{color:var(--green);font-weight:700;font-variant-numeric:tabular-nums}
+.minus{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+.pend{color:var(--amber);font-weight:700}
+.ad{position:absolute;inset:0;background:#0d0e10;color:#fff;z-index:5;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.ad.on{display:flex}
+.ad .t{font-size:13px;color:#9aa0a8}
+.ad .sec2{font-size:44px;font-weight:800;font-variant-numeric:tabular-nums}
+.ad .bar{width:60%;height:4px;background:#2a2d31;border-radius:2px;overflow:hidden}
+.ad .bar i{display:block;height:100%;background:var(--coin);width:0}
+.ad button{border:1px solid #3a3e44;background:none;color:#cfd3d8;border-radius:10px;padding:8px 14px;font-size:12.5px}
+.toast{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);background:rgba(22,24,27,.92);color:#fff;padding:9px 14px;border-radius:10px;font-size:13px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+.phwrap{position:relative}
+
+/* console */
+.con{background:#fff;border:1px solid var(--line);border-radius:12px;min-width:0}
+.con-h{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);gap:12px;flex-wrap:wrap}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:none;padding:7px 14px;color:var(--ink2);font-size:13px}
+.seg button.on{background:var(--ink);color:#fff}
+.con-h .live{font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block}
+.pane{display:none}.pane.on{display:block}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}
+.kpis div{padding:14px 18px;border-right:1px solid var(--line)}
+.kpis div:last-child{border-right:0}
+.kpis span{font-size:12px;color:var(--ink3)}
+.kpis b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:11.5px;color:var(--ink3);font-weight:500;text-align:left;padding:9px 12px;background:#fafaf8;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+td.mono,.mono{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--ink2)}
+td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+tr.new td{animation:flash 1.2s ease-out}
+@keyframes flash{from{background:#fff6dd}to{background:transparent}}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.t-ok{color:var(--green);background:var(--green-bg)} .t-no{color:var(--red);background:var(--red-bg)} .t-wait{color:var(--amber);background:var(--amber-bg)} .t-info{color:var(--blue);background:var(--blue-bg)}
+.scrollt{max-height:470px;overflow:auto}
+.empty{padding:28px;text-align:center;color:var(--ink3);font-size:13px}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:16px 18px;border-bottom:1px solid var(--line);background:#fafaf8}
+.flow div{font-size:12px;color:var(--ink2);padding:0 10px;border-left:2px solid var(--line)}
+.flow div b{display:block;color:var(--ink);font-size:12.5px;margin-bottom:2px}
+.flow div.hit{border-color:var(--coin)}
+.ab{padding:14px 18px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:6px 16px}
+.ab b{font-size:14px}
+.ab .why{grid-column:1/-1;font-size:12.5px;color:var(--ink2)}
+.ab .acts{display:flex;gap:6px;align-items:flex-start}
+.ab .acts button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:4px 10px;font-size:12px}
+.ab.done{opacity:.5}
+.rules{padding:16px 18px;font-size:12.5px;color:var(--ink2);background:#fafaf8}
+.rules b{color:var(--ink);font-size:13px;display:block;margin-bottom:6px}
+.rules div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--line)}
+.rules div:last-child{border-bottom:0}
+.rq{display:grid;grid-template-columns:92px 1fr 90px 80px;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);align-items:start;font-size:13px}
+.rq .d{color:var(--ink3);font-variant-numeric:tabular-nums;font-size:12px}
+.rq b{display:block;font-size:13.5px}
+.rq span.s{font-size:12px;color:var(--ink3)}
+.rq .where{font-size:12px;color:var(--ink2)}
+.week{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-bottom:1px solid var(--line)}
+.week div{padding:12px 14px;border-right:1px solid var(--line);font-size:12.5px;color:var(--ink2)}
+.week div:last-child{border-right:0}
+.week b{display:block;color:var(--ink);font-size:12px;margin-bottom:4px}
+
+@media (max-width:980px){
+  .wrap{grid-template-columns:1fr;padding:16px}
+  .phone{position:relative;top:0;margin:0 auto;width:100%;max-width:390px}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpis div:nth-child(2){border-right:0}
+  .kpis div:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .flow,.week{grid-template-columns:1fr 1fr}
+  .flow div{margin-bottom:10px}
+  .rq{grid-template-columns:1fr 80px}
+  .rq .d,.rq .where{display:none}
+  .hide-m{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="note"><b>리워드 앱 포인트 흐름 데모</b><span>지원용 샘플입니다. 왼쪽 앱에서 미션을 수행하면 오른쪽 서버 원장에 기록되는 과정을 보여줍니다.</span></div>
+
+  <div class="phwrap">
+    <div class="phone">
+      <div class="sb"><span>9:41</span><span>LTE 100%</span></div>
+      <div class="pv" id="pv"></div>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div class="ad" id="ad" style="border-radius:44px;margin:11px"><div class="t">광고 시청 중</div><div class="sec2" id="adSec">5</div><div class="bar"><i id="adBar"></i></div><button id="adSkip">닫기 (보상 없음)</button></div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="con">
+    <div class="con-h">
+      <div class="seg" id="seg">
+        <button data-p="ledger" class="on">포인트 원장</button>
+        <button data-p="abuse">어뷰징 탐지</button>
+        <button data-p="req">운영 요청</button>
+      </div>
+      <span class="live"><i></i>user_8a21f 실시간</span>
+    </div>
+
+    <div class="pane on" id="p-ledger">
+      <div class="kpis">
+        <div><span>잔액</span><b id="kBal">0</b></div>
+        <div><span>오늘 적립</span><b id="kToday">0</b></div>
+        <div><span>거부된 요청</span><b id="kRej">0</b></div>
+        <div><span>교환 보류</span><b id="kHold">0</b></div>
+      </div>
+      <div class="flow" id="flow">
+        <div data-s="1"><b>1. 앱 요청</b>멱등 키 생성 후 전송</div>
+        <div data-s="2"><b>2. 검증</b>중복, 일 한도, 광고 SSV 서명</div>
+        <div data-s="3"><b>3. 원장 기록</b>트랜잭션 안에서 잔액과 함께 갱신</div>
+        <div data-s="4"><b>4. 응답</b>앱 잔액 갱신</div>
+      </div>
+      <div class="scrollt">
+        <table>
+          <thead><tr><th>시각</th><th>유형</th><th class="hide-m">멱등 키</th><th>결과</th><th style="text-align:right">변동</th><th style="text-align:right" class="hide-m">잔액</th></tr></thead>
+          <tbody id="ledger"></tbody>
+        </table>
+        <div class="empty" id="empty">왼쪽 앱에서 출석체크나 광고 보기를 눌러 보세요. 같은 버튼을 빠르게 두 번 누르면 중복 요청이 어떻게 처리되는지 확인할 수 있습니다.</div>
+      </div>
+    </div>
+
+    <div class="pane" id="p-abuse">
+      <div id="abList"></div>
+      <div class="rules">
+        <b>현재 탐지 규칙</b>
+        <div><span>동일 기기 ID에 연결된 계정</span><span>3개 이상 시 검토</span></div>
+        <div><span>광고 보상 요청 간격</span><span>평균 8초 미만 시 보류</span></div>
+        <div><span>에뮬레이터, 루팅 기기</span><span>적립 차단, 교환 보류</span></div>
+        <div><span>가입 24시간 내 교환 요청</span><span>수동 승인</span></div>
+        <div><span>추천인 코드 동일 IP 대역 반복</span><span>추천 보상 보류</span></div>
+      </div>
+    </div>
+
+    <div class="pane" id="p-req">
+      <div class="week">
+        <div><b>월</b>요청 정리, 우선순위 확인</div>
+        <div><b>화 ~ 목</b>개발, 스테이징 배포</div>
+        <div><b>목</b>운영진 확인</div>
+        <div><b>금</b>운영 배포, 주간 공유</div>
+        <div><b>상시</b>장애와 포인트 오류 즉시 대응</div>
+      </div>
+      <div id="rqList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const IC={
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10.5L12 4l8 6.5V20H4z"/></svg>',
+  gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M12 9v11M3 9h18M12 9c-2-4-6-4-6-1.5S12 9 12 9zm0 0c2-4 6-4 6-1.5S12 9 12 9z"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>'
+};
+let S={tab:"home",bal:4820,today:0,rej:0,hold:0,att:[1,1,1,0,0,0,0],attDone:false,adCnt:8,adMax:10,steps:3420,stepDone:false,quizDone:false,hist:[
+  ['출석 3일 차','11.11',10,'ok'],['광고 보상','11.11',30,'ok'],['만보기 3,000보','11.11',20,'ok'],['편의점 상품권 교환','11.08',-3000,'ok']]};
+const pending=new Set(), ledger=[];
+let seq=Date.now()%100000;
+const key=t=>`${t}:${new Date().toISOString().slice(0,10).replace(/-/g,'')}:${(++seq).toString(36)}`;
+const now=()=>new Date().toTimeString().slice(0,8);
+
+function tabs(){$('#tabs').innerHTML=[['home','홈',IC.home],['gift','교환',IC.gift],['hist','내역',IC.list]].map(t=>`<button class="${S.tab===t[0]?'on':''}" onclick="S.tab='${t[0]}';render()">${t[2]}${t[1]}</button>`).join('')}
+function render(){
+  const v={home(){
+    const day=['월','화','수','목','금','토','일'];
+    return `<div class="top"><h1>오늘의 리워드</h1></div>
+    <div class="bal"><span>내 포인트</span><div class="n"><span class="coin">P</span>${S.bal.toLocaleString()}</div><div class="row"><span>오늘 적립 <b>${S.today}P</b></span><span>광고 <b>${S.adCnt}/${S.adMax}</b></span></div></div>
+    <div class="sec"><h2>출석체크 <small>7일 연속 시 100P 추가</small></h2>
+    <div class="att">${S.att.map((a,i)=>`<div class="${a?'ok':''} ${i===3?'today':''}"><b>${a||i!==6?'10P':'+100'}</b>${day[i]}</div>`).join('')}</div>
+    <button class="btn" id="attBtn" ${S.attDone?'disabled':''}>${S.attDone?'오늘 출석 완료':'출석하고 10P 받기'}</button>
+    <h2>미션</h2>
+    <div class="ms"><div class="ic">AD</div><div class="c"><b>광고 보고 포인트 받기</b><span>5초 광고, 하루 ${S.adMax}회</span></div><button id="adBtn">+30P</button></div>
+    <div class="ms"><div class="ic">걸음</div><div class="c"><b>만보기 3,000보</b><span>오늘 ${S.steps.toLocaleString()}보</span></div><button id="stepBtn" ${S.stepDone?'disabled':''}>${S.stepDone?'완료':'+20P'}</button></div>
+    <div class="ms"><div class="ic">Q</div><div class="c"><b>오늘의 퀴즈</b><span>정답 시 지급</span></div><button id="quizBtn" ${S.quizDone?'disabled':''}>${S.quizDone?'완료':'+10P'}</button></div>
+    <div class="ms" style="border:0"><div class="ic">+</div><div class="c"><b>친구 초대</b><span>친구가 첫 미션 완료 시 지급</span></div><button onclick="toast('초대 링크를 복사했습니다')">+500P</button></div>
+    <div style="height:16px"></div></div>`},
+  gift(){
+    const g=[['편의점 상품권 3천원',3000,'#ffe7a3'],['아메리카노 Tall',4500,'#e3d5c6'],['배달앱 5천원권',5000,'#d4ecdf'],['네이버페이 포인트 1만원',10000,'#d7f0d2']];
+    return `<div class="top"><h1>포인트 교환</h1></div><div class="bal" style="padding:14px 18px"><span>교환 가능</span><div class="n" style="font-size:24px"><span class="coin">P</span>${S.bal.toLocaleString()}</div></div>
+    <div class="sec"><h2>기프티콘</h2><div class="gift">${g.map(x=>`<div onclick="exchange('${x[0]}',${x[1]})"><div class="img" style="background:${x[2]}"></div><b>${x[0]}</b><span>${x[1].toLocaleString()}P</span></div>`).join('')}</div>
+    <p style="font-size:12px;color:var(--ink3);margin-top:14px">교환 요청 후 검수를 거쳐 최대 10분 안에 발송됩니다.</p></div>`},
+  hist(){
+    return `<div class="top"><h1>포인트 내역</h1></div><div class="sec hist" style="margin-top:10px">${S.hist.map(h=>`<div><span>${h[0]}<small>${h[1]}</small></span><span class="${h[3]==='wait'?'pend':h[2]>0?'plus':'minus'}">${h[3]==='wait'?'검수 중 ':''}${h[2]>0?'+':''}${h[2].toLocaleString()}P</span></div>`).join('')}</div>`}};
+  $('#pv').innerHTML=v[S.tab]();tabs();
+  const a=$('#attBtn');if(a)a.onclick=()=>req('ATTEND','출석체크',10,()=>{S.attDone=true;S.att[3]=1});
+  const ad=$('#adBtn');if(ad)ad.onclick=playAd;
+  const st=$('#stepBtn');if(st)st.onclick=()=>req('STEPS','만보기 3,000보',20,()=>S.stepDone=true);
+  const q=$('#quizBtn');if(q)q.onclick=()=>req('QUIZ','오늘의 퀴즈',10,()=>S.quizDone=true);
+  $('#kBal').textContent=S.bal.toLocaleString();$('#kToday').textContent=S.today;$('#kRej').textContent=S.rej;$('#kHold').textContent=S.hold;
+}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1700)}
+function hit(n){document.querySelectorAll('#flow div').forEach(d=>d.classList.toggle('hit',+d.dataset.s<=n))}
+function addLedger(r){ledger.unshift(r);$('#empty').style.display='none';
+  $('#ledger').innerHTML=ledger.map((x,i)=>`<tr class="${i===0?'new':''}"><td class="mono">${x.t}</td><td>${x.type}</td><td class="mono hide-m">${x.k}</td><td><span class="tag ${x.cls}">${x.res}</span>${x.why?`<div style="font-size:11.5px;color:var(--ink3);margin-top:3px">${x.why}</div>`:''}</td><td class="num" style="color:${x.amt>0?'var(--green)':x.amt<0?'var(--ink)':'var(--ink3)'}">${x.amt>0?'+':''}${x.amt||'0'}</td><td class="num hide-m">${x.bal.toLocaleString()}</td></tr>`).join('')}
+
+// 같은 행동의 요청이 처리 중이면 동일 멱등 키로 재전송된 것으로 간주
+const inflight={};
+function req(type,label,amt,onOk,extra){
+  let k=inflight[type];const dup=!!k;
+  if(!k){k=key(type);inflight[type]=k}
+  hit(1);
+  setTimeout(()=>{hit(2);
+    setTimeout(()=>{
+      if(dup){S.rej++;addLedger({t:now(),type:label,k,res:'중복 거부',cls:'t-no',why:'같은 멱등 키 재요청. 첫 요청 결과를 그대로 반환',amt:0,bal:S.bal});render();return}
+      if(extra&&extra.reject){S.rej++;delete inflight[type];addLedger({t:now(),type:label,k,res:'거부',cls:'t-no',why:extra.reject,amt:0,bal:S.bal});hit(4);render();toast(extra.reject);return}
+      hit(3);S.bal+=amt;S.today+=amt;onOk&&onOk();S.hist.unshift([label,'11.12',amt,'ok']);
+      addLedger({t:now(),type:label,k,res:'적립',cls:'t-ok',why:extra&&extra.why||'',amt,bal:S.bal});
+      setTimeout(()=>{hit(4);delete inflight[type];render();toast(`${amt}P 적립되었습니다`)},250);
+    },320)},180);
+}
+let adTimer;
+function playAd(){
+  const ad=$('#ad');ad.classList.add('on');let s=5;$('#adSec').textContent=s;$('#adBar').style.width='0';
+  const t0=Date.now();clearInterval(adTimer);
+  adTimer=setInterval(()=>{const e=(Date.now()-t0)/1000;$('#adBar').style.width=Math.min(100,e/5*100)+'%';$('#adSec').textContent=Math.max(0,Math.ceil(5-e));
+    if(e>=5){clearInterval(adTimer);ad.classList.remove('on');
+      const over=S.adCnt>=S.adMax;if(!over)S.adCnt++;
+      req('AD_REWARD','광고 보상',30,null,over?{reject:'일 한도 초과 (10회)'}:{why:'광고 네트워크 SSV 서명 검증 통과'});}
+  },100);
+}
+$('#adSkip').onclick=()=>{clearInterval(adTimer);$('#ad').classList.remove('on');addLedger({t:now(),type:'광고 보상',k:'-',res:'미지급',cls:'t-info',why:'광고를 끝까지 보지 않아 SSV 콜백 없음',amt:0,bal:S.bal})};
+function exchange(name,cost){
+  if(S.bal<cost){toast('포인트가 부족합니다');return}
+  const k=key('EXCHANGE');S.bal-=cost;S.hold++;S.hist.unshift([name+' 교환','11.12',-cost,'wait']);
+  addLedger({t:now(),type:name+' 교환',k,res:'보류',cls:'t-wait',why:'포인트 선차감 후 검수 대기',amt:-cost,bal:S.bal});render();toast('교환 요청이 접수되었습니다');
+  setTimeout(()=>{S.hold--;S.hist[S.hist.findIndex(h=>h[3]==='wait')][3]='ok';
+    addLedger({t:now(),type:name+' 교환',k,res:'발급 완료',cls:'t-ok',why:'어뷰징 규칙 통과, 쿠폰 발급 API 응답 정상',amt:0,bal:S.bal});render()},2600);
+}
+
+/* abuse */
+const ab=[
+  {u:'user_51c0e 외 3계정',lv:['높음','t-no'],why:'동일 기기 ID(ad7f...e21)에 4개 계정이 연결되어 있고, 모두 가입 후 48시간 안에 친구 초대 보상을 서로 주고받았습니다.',pts:'2,000P 보류'},
+  {u:'user_93ab2',lv:['높음','t-no'],why:'광고 보상 요청 간격이 평균 3.1초로 광고 길이(5초)보다 짧습니다. SSV 콜백 없이 보상 API를 직접 호출한 기록이 12건입니다.',pts:'360P 보류'},
+  {u:'user_0f6d1',lv:['검토','t-wait'],why:'에뮬레이터 환경(Build.FINGERPRINT generic)에서 접속했습니다. 적립은 차단되어 있고 기존 포인트 교환 요청이 1건 있습니다.',pts:'교환 1건 보류'},
+  {u:'user_c27e4',lv:['낮음','t-info'],why:'만보기 걸음 수가 새벽 2시부터 4시 사이에 1만 보 증가했습니다. 기기 흔들기 앱 사용 가능성이 있습니다.',pts:'관찰'}
+];
+function renderAb(){$('#abList').innerHTML=ab.map((a,i)=>`<div class="ab ${a.done?'done':''}"><div><b>${a.u}</b> <span class="tag ${a.lv[1]}">${a.lv[0]}</span> <span style="font-size:12px;color:var(--ink3)">${a.pts}</span></div>
+<div class="acts">${a.done?`<span class="tag t-info">${a.done}</span>`:`<button onclick="abAct(${i},'정지 처리')">정지</button><button onclick="abAct(${i},'보류 해제')">해제</button>`}</div><div class="why">${a.why}</div></div>`).join('')}
+function abAct(i,r){ab[i].done=r;renderAb()}
+renderAb();
+
+/* requests */
+const rq=[
+  ['11.12','친구 초대 보상 지급 조건을 "첫 미션 완료"로 변경','앱, 서버','진행 중','t-wait'],
+  ['11.11','교환 상품에 배달앱 5천원권 추가','관리자, 서버','완료','t-ok'],
+  ['11.10','Android 일부 기기에서 만보기 걸음 수가 0으로 초기화됨','앱','완료','t-ok'],
+  ['11.07','관리자에서 회원별 포인트 원장 조회 화면 추가','관리자','완료','t-ok'],
+  ['11.06','광고 보상 일 한도를 10회에서 15회로 조정 (주말만)','서버','완료','t-ok'],
+  ['11.05','iOS 푸시 알림 클릭 시 미션 화면으로 이동하지 않음','앱','완료','t-ok']
+];
+$('#rqList').innerHTML=rq.map(r=>`<div class="rq"><span class="d">${r[0]}</span><div><b>${r[1]}</b></div><span class="where">${r[2]}</span><span><span class="tag ${r[4]}">${r[3]}</span></span></div>`).join('');
+
+$('#seg').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#seg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p))});
+render();
+</script>
+</body>
+</html>
