@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DiveLog 클래스 예약 프로토타입</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --bg:#e9edf0; --ink:#0f1a22; --ink2:#4a5863; --ink3:#8b98a3; --line:#e6eaee; --soft:#f3f6f8;
+  --sea:#0b5d7a; --sea2:#0e7ea3; --sea-bg:#e6f2f6; --deep:#082b3a; --sun:#f2a33a; --red:#d1453b; --green:#1f8a5b;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
+.stage{min-height:100vh;display:flex;justify-content:center;align-items:center;gap:48px;padding:32px}
+.side{width:230px;align-self:center}
+.side h1{font-size:18px;margin:0 0 4px}
+.side .s{font-size:12.5px;color:var(--ink3);margin-bottom:22px}
+.side h2{font-size:12px;color:var(--ink3);font-weight:600;margin:18px 0 6px;letter-spacing:.02em}
+.side button{display:block;width:100%;text-align:left;background:none;border:0;padding:6px 10px;border-radius:6px;cursor:pointer;color:var(--ink2);font-size:13.5px}
+.side button:hover{background:#dde3e8}
+.side button.on{background:var(--ink);color:#fff}
+.device{width:390px;height:812px;background:#fff;border-radius:46px;border:12px solid #0d1418;position:relative;overflow:hidden;box-shadow:0 30px 60px -20px rgba(8,43,58,.35)}
+.statusbar{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 26px;font-size:13px;font-weight:600;flex:none}
+.screen{position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.tabbar{flex:none;height:78px;border-top:1px solid var(--line);display:flex;padding-bottom:20px;background:#fff}
+.tabbar button{flex:1;background:none;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;color:var(--ink3);cursor:pointer}
+.tabbar button.on{color:var(--ink);font-weight:600}
+.tabbar svg{width:22px;height:22px}
+.hd{display:flex;align-items:center;gap:10px;padding:8px 18px 12px;min-height:48px}
+.hd h2{font-size:20px;margin:0;flex:1;letter-spacing:-.01em}
+.hd .back{background:none;border:0;padding:4px;cursor:pointer;margin-left:-6px;display:flex}
+.hd.sm h2{font-size:16px;text-align:center;margin-right:28px}
+.pad{padding:0 18px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:0 18px 14px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:#fff;border-radius:16px;padding:6px 13px;font-size:13px;cursor:pointer;color:var(--ink2)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.sec-t{font-size:15px;font-weight:700;margin:22px 0 10px;display:flex;justify-content:space-between;align-items:baseline}
+.sec-t a{font-size:12.5px;color:var(--ink3);font-weight:500;cursor:pointer}
+.muted{color:var(--ink3)}
+
+/* log */
+.pb{background:var(--deep);color:#fff;border-radius:16px;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px 10px;position:relative;overflow:hidden}
+.pb::after{content:"";position:absolute;right:-40px;bottom:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#0e7ea355,transparent 70%)}
+.pb .k{font-size:11.5px;color:#9fc1cf}
+.pb .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.pb .v small{font-size:12px;font-weight:500;color:#9fc1cf;margin-left:2px}
+.pb .ttl{grid-column:1/-1;font-size:13px;font-weight:600;display:flex;justify-content:space-between}
+.pb .ttl span{font-weight:400;color:#9fc1cf;font-size:12px}
+.logi{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.logi .d{width:44px;text-align:center;flex:none}
+.logi .d b{display:block;font-size:18px;line-height:1.1}
+.logi .d span{font-size:11px;color:var(--ink3)}
+.logi .c{flex:1;min-width:0}
+.logi .c b{font-size:14px}
+.logi .meta{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.depth{display:flex;align-items:flex-end;gap:3px;height:34px;margin-top:8px}
+.depth i{display:block;width:8px;background:var(--sea2);border-radius:2px 2px 0 0;opacity:.8}
+
+/* class */
+.ccard{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.thumb{width:92px;height:92px;border-radius:12px;flex:none;position:relative;overflow:hidden}
+.thumb span{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.55);color:#fff;font-size:10.5px;padding:1px 6px;border-radius:4px}
+.ccard .c{flex:1;min-width:0}
+.ccard .lv{font-size:11.5px;color:var(--sea);font-weight:600}
+.ccard h3{font-size:15px;margin:2px 0 4px;line-height:1.35}
+.ccard .who{font-size:12.5px;color:var(--ink2)}
+.ccard .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.price{font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.seat{font-size:11.5px;color:var(--red);font-weight:600}
+.star{font-size:12px;color:var(--ink2)}
+.star b{color:var(--sun)}
+.hero{height:220px;position:relative}
+.hero .back{position:absolute;top:10px;left:12px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);border:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.dtitle{padding:18px 18px 0}
+.dtitle .lv{font-size:12px;color:var(--sea);font-weight:600}
+.dtitle h2{font-size:21px;margin:4px 0 6px;line-height:1.35;letter-spacing:-.01em}
+.inst{display:flex;gap:10px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:12px;margin-top:14px}
+.av{width:42px;height:42px;border-radius:50%;background:#cfe0e7;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--sea);flex:none}
+.inst b{display:block;font-size:14px}
+.inst span{font-size:12px;color:var(--ink3)}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:12px;margin-top:10px}
+.facts div{padding:12px 6px;text-align:center;border-right:1px solid var(--line)}
+.facts div:last-child{border-right:0}
+.facts b{display:block;font-size:14px}
+.facts span{font-size:11.5px;color:var(--ink3)}
+.curr{margin:0;padding:0;list-style:none;counter-reset:c}
+.curr li{counter-increment:c;padding:10px 0 10px 32px;position:relative;border-bottom:1px solid var(--line);font-size:13.5px}
+.curr li::before{content:counter(c);position:absolute;left:0;top:10px;width:22px;height:22px;border-radius:50%;background:var(--soft);font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--ink2)}
+.curr li span{display:block;font-size:12px;color:var(--ink3)}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot{border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;background:#fff}
+.slot b{display:block;font-size:14px}
+.slot span{font-size:11.5px;color:var(--ink3)}
+.slot.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.slot.on span{color:#b9c6cf}
+.slot.full{opacity:.4;cursor:not-allowed}
+.slot.warn span{color:var(--red)}
+.slot.on.warn span{color:#ffb4ae}
+.policy{background:var(--soft);border-radius:12px;padding:14px;font-size:12.5px;color:var(--ink2)}
+.policy b{color:var(--ink);display:block;margin-bottom:6px;font-size:13px}
+.policy div{display:flex;justify-content:space-between;padding:3px 0}
+.cta{flex:none;padding:12px 18px 28px;border-top:1px solid var(--line);background:#fff;display:flex;gap:12px;align-items:center}
+.cta .sum{flex:none}
+.cta .sum span{display:block;font-size:11.5px;color:var(--ink3)}
+.cta .sum b{font-size:17px;font-variant-numeric:tabular-nums}
+.btn{flex:1;height:52px;border-radius:14px;border:0;background:var(--ink);color:#fff;font-weight:600;font-size:15.5px;cursor:pointer}
+.btn:disabled{background:#c5cdd3;cursor:not-allowed}
+.btn.line{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.cnt{display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--line);border-radius:12px}
+.stepper{display:flex;align-items:center;gap:14px}
+.stepper button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:16px}
+
+/* pay */
+.box{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.box .r{display:flex;justify-content:space-between;padding:4px 0;font-size:13.5px}
+.box .r.t{border-top:1px solid var(--line);margin-top:8px;padding-top:12px;font-weight:700;font-size:15px}
+.pm{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pm button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:12px;cursor:pointer;font-size:13.5px}
+.pm button.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);font-weight:600}
+.agree{display:flex;gap:8px;align-items:flex-start;font-size:13px;padding:6px 0;cursor:pointer}
+.agree input{margin-top:2px;accent-color:var(--ink)}
+.done-ic{width:64px;height:64px;border-radius:50%;background:var(--sea-bg);display:flex;align-items:center;justify-content:center;margin:40px auto 16px}
+.center{text-align:center}
+.ticket{border:1px solid var(--line);border-radius:16px;margin:24px 18px 0;overflow:hidden}
+.ticket .top{background:var(--deep);color:#fff;padding:16px}
+.ticket .top span{font-size:12px;color:#9fc1cf}
+.ticket .top b{display:block;font-size:16px;margin-top:2px}
+.ticket .bd{padding:14px 16px;display:grid;grid-template-columns:70px 1fr;gap:8px;font-size:13px}
+.ticket .bd span{color:var(--ink3)}
+
+/* spots */
+.map{height:200px;margin:0 18px;border-radius:16px;background:linear-gradient(160deg,#d7ebf2,#bcdbe7);position:relative;overflow:hidden}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.pin{position:absolute;transform:translate(-50%,-100%);background:var(--ink);color:#fff;font-size:11px;padding:3px 8px;border-radius:10px;white-space:nowrap;cursor:pointer;font-weight:600}
+.pin::after{content:"";position:absolute;left:50%;bottom:-4px;margin-left:-4px;border:4px solid transparent;border-top-color:var(--ink);border-bottom:0}
+.pin.on{background:var(--sea2)}
+.pin.on::after{border-top-color:var(--sea2)}
+.spot{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.spot .c{flex:1}
+.spot b{font-size:15px}
+.cond{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.cond span{font-size:11.5px;background:var(--soft);padding:2px 8px;border-radius:6px;color:var(--ink2)}
+.cond span.good{background:#e3f4ec;color:var(--green)}
+.cond span.bad{background:#fbe9e7;color:var(--red)}
+.rev{padding:14px 0;border-bottom:1px solid var(--line)}
+.rev .h{display:flex;justify-content:space-between;font-size:12.5px}
+.rev .h b{font-size:13px}
+.rev p{margin:6px 0 0;font-size:13.5px;color:var(--ink2)}
+.rev .tags{display:flex;gap:6px;margin-top:6px}
+.rev .tags span{font-size:11px;color:var(--sea);background:var(--sea-bg);padding:1px 7px;border-radius:5px}
+.rating{display:flex;align-items:center;gap:16px;padding:16px;border:1px solid var(--line);border-radius:12px}
+.rating .big{font-size:30px;font-weight:700}
+.bars{flex:1;font-size:11.5px;color:var(--ink3)}
+.bars div{display:flex;align-items:center;gap:6px;margin:2px 0}
+.bars i{flex:1;height:5px;background:var(--soft);border-radius:3px;position:relative;overflow:hidden}
+.bars i::after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--w);background:var(--sun)}
+.sheet{position:absolute;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;z-index:5}
+.sheet.on{display:flex}
+.sheet .in{background:#fff;width:100%;border-radius:20px 20px 0 0;padding:18px 18px 30px}
+.sheet h3{margin:0 0 14px;font-size:17px}
+.stars{display:flex;gap:6px;margin-bottom:14px}
+.stars button{background:none;border:0;font-size:28px;color:#d6dde2;cursor:pointer;padding:0}
+.stars button.on{color:var(--sun)}
+.sheet textarea{width:100%;height:90px;border:1px solid var(--line);border-radius:10px;padding:10px;resize:none;margin-bottom:12px}
+.toast{position:absolute;left:50%;bottom:100px;transform:translateX(-50%);background:rgba(15,26,34,.92);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:9}
+.toast.on{opacity:1}
+
+/* me & instructor */
+.prof{display:flex;gap:12px;align-items:center;padding:6px 18px 18px}
+.prof .av{width:54px;height:54px;font-size:18px}
+.prof b{font-size:17px}
+.mode{display:flex;background:var(--soft);border-radius:12px;padding:4px;margin:0 18px 6px}
+.mode button{flex:1;border:0;background:none;padding:9px;border-radius:9px;cursor:pointer;font-weight:500;color:var(--ink2)}
+.mode button.on{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.rsv{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.rsv .st{font-size:11.5px;font-weight:700}
+.rsv .st.ok{color:var(--green)} .rsv .st.wait{color:var(--sun)} .rsv .st.cc{color:var(--ink3)}
+.rsv b{display:block;font-size:14.5px;margin:3px 0}
+.rsv .m{font-size:12.5px;color:var(--ink2)}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi div{background:var(--soft);border-radius:12px;padding:12px}
+.kpi span{font-size:11.5px;color:var(--ink3)}
+.kpi b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.sess{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.sess .t{width:52px;flex:none;font-weight:700;font-size:13px}
+.sess .t span{display:block;font-weight:400;font-size:11.5px;color:var(--ink3)}
+.sess .c{flex:1}
+.sess .c b{font-size:13.5px}
+.cap{height:5px;background:var(--soft);border-radius:3px;margin-top:6px;overflow:hidden}
+.cap i{display:block;height:100%;background:var(--sea2)}
+.sess .n{font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.wx{font-size:11px;padding:2px 6px;border-radius:5px;background:#fbe9e7;color:var(--red);font-weight:600;margin-left:4px}
+.menu-l div{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px}
+.menu-l span{color:var(--ink3)}
+
+@media (max-width:860px){
+  .side{display:none}
+  .stage{padding:0;display:block}
+  .device{width:100%;height:100vh;height:100dvh;border:0;border-radius:0;box-shadow:none}
+  .statusbar{display:none}
+  .screen{top:0}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="side">
+    <h1>DiveLog</h1>
+    <div class="s">클래스 예약과 다이빙 포인트 프로토타입</div>
+    <h2>수강생</h2>
+    <button data-go="log">다이빙 기록</button>
+    <button data-go="classes">클래스 목록</button>
+    <button data-go="class:c1">클래스 상세와 일정 선택</button>
+    <button data-go="pay">결제</button>
+    <button data-go="done">예약 완료</button>
+    <button data-go="spots">다이빙 포인트</button>
+    <button data-go="spot:s1">포인트 상세와 리뷰</button>
+    <button data-go="me">내 예약</button>
+    <h2>강사</h2>
+    <button data-go="inst">예약 현황과 일정 관리</button>
+  </div>
+
+  <div class="device" id="device">
+    <div class="statusbar"><span>9:41</span><span>LTE 100%</span></div>
+    <div class="screen" id="screen"></div>
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+const IC={
+  log:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>',
+  cls:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>',
+  spot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  me:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>',
+  check:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0b5d7a" stroke-width="2.4"><path d="M5 12.5l4.5 4.5L19 7"/></svg>'
+};
+const grad=['linear-gradient(150deg,#0e7ea3,#082b3a)','linear-gradient(150deg,#2aa1b3,#0b5d7a)','linear-gradient(150deg,#4a90b8,#163d5c)','linear-gradient(150deg,#58b4c4,#1d5f78)'];
+const won=n=>n.toLocaleString('ko-KR')+'원';
+
+const classes=[
+  {id:'c1',lv:'입문',title:'프리다이빙 입문 1일 체험 (풀장)',inst:'한도윤',cert:'AIDA 강사',where:'용인 딥스테이션',price:120000,rating:4.9,rv:86,dur:'4시간',depth:'5m',max:4,g:0,
+   curr:[['호흡과 이완','이론 40분'],['이퀄라이징 기초','지상 연습 20분'],['정적 무호흡과 안전 다이빙','풀장 90분'],['라인 다이빙 5m','풀장 60분']],
+   slots:[['11.16','일 09:00',2],['11.16','일 14:00',0],['11.22','토 09:00',4],['11.23','일 09:00',1],['11.29','토 14:00',3],['11.30','일 09:00',4]]},
+  {id:'c2',lv:'자격증',title:'AIDA 2 자격 과정 (이론, 풀장, 해양)',inst:'한도윤',cert:'AIDA 강사',where:'용인 딥스테이션, 제주 서귀포',price:540000,rating:4.8,rv:41,dur:'3일',depth:'최대 16m',max:4,g:1,
+   curr:[['이론과 필기 평가','1일 차'],['STA, DYN 풀장 훈련','1일 차'],['CWT 해양 실습','2~3일 차'],['구조 훈련과 수료 평가','3일 차']],
+   slots:[['11.21','금 ~ 11.23',2],['12.05','금 ~ 12.07',4]]},
+  {id:'c3',lv:'레벨업',title:'20m 돌파 이퀄라이징 집중반',inst:'서지안',cert:'Molchanovs 강사',where:'가평 K26',price:180000,rating:5.0,rv:23,dur:'3시간',depth:'최대 26m',max:3,g:2,
+   curr:[['프렌젤과 마우스필 진단','지상 40분'],['FIM 라인 훈련','풀장 80분'],['피드백 영상 리뷰','30분']],
+   slots:[['11.15','토 13:00',1],['11.22','토 13:00',3]]},
+  {id:'c4',lv:'트레이닝',title:'주말 해양 펀다이빙 트레이닝',inst:'서지안',cert:'Molchanovs 강사',where:'제주 서귀포 문섬',price:95000,rating:4.7,rv:58,dur:'반나절',depth:'10~25m',max:6,g:3,
+   curr:[['포인트 브리핑과 안전 수칙','30분'],['부이 라인 훈련','2시간'],['자유 펀다이빙','1시간']],
+   slots:[['11.15','토 09:00',4],['11.16','일 09:00',2]]}
+];
+const spots=[
+  {id:'s1',name:'서귀포 문섬',reg:'제주',x:30,y:84,temp:'21°C',vis:'15~20m',depth:'최대 30m',st:['시야 좋음','good'],access:'서귀포항에서 보트 10분',rating:4.8,rv:132,
+   desc:'수직 직벽이 이어져 라인 훈련과 펀다이빙을 함께 할 수 있습니다. 북서풍이 강한 날은 파도가 높아 출항이 취소되는 경우가 있습니다.'},
+  {id:'s2',name:'서귀포 범섬',reg:'제주',x:24,y:86,temp:'21°C',vis:'10~15m',depth:'최대 25m',st:['조류 주의','bad'],access:'법환포구에서 보트 15분',rating:4.6,rv:74,
+   desc:'수중 동굴과 아치 지형이 유명합니다. 조류가 빠른 시간대가 있어 강사 동행을 권장합니다.'},
+  {id:'s3',name:'고성 오호리',reg:'강원',x:66,y:14,temp:'15°C',vis:'8~12m',depth:'최대 15m',st:['수온 낮음','bad'],access:'해변 입수',rating:4.4,rv:39,
+   desc:'해변에서 바로 입수할 수 있어 입문자 해양 실습지로 많이 쓰입니다. 늦가을부터는 7mm 슈트를 권장합니다.'},
+  {id:'s4',name:'울릉 저동',reg:'경북',x:88,y:30,temp:'18°C',vis:'20m 이상',depth:'최대 40m',st:['시야 좋음','good'],access:'저동항 인근 해변 입수',rating:4.9,rv:51,
+   desc:'국내에서 손꼽히는 시야를 보여주는 곳입니다. 수심이 빠르게 깊어져 중급 이상에게 맞습니다.'}
+];
+const reviews={
+  s1:[['바다거북','11.09',5,'시야 18m 정도로 정말 좋았어요. 직벽 따라 FIM 연습하기 딱입니다.',['시야 좋음','라인 훈련']],
+      ['프리즈','11.02',4,'오후부터 바람이 불어서 일찍 철수했어요. 오전 출항 추천합니다.',['오전 추천']],
+      ['딥블루','10.26',5,'자리돔 떼 사이로 내려가는 느낌이 최고였습니다.',['펀다이빙']]],
+  s2:[['물개','11.01',4,'동굴 지형 멋있는데 조류가 생각보다 셌어요.',['조류 주의']]],
+  s3:[['초보다이버','10.30',4,'해변 입수라 편했어요. 수온이 꽤 차가웠습니다.',['입문 추천']]],
+  s4:[['해녀꿈나무','10.12',5,'시야가 비현실적이었습니다.',['시야 좋음']]]
+};
+const myRsv=[
+  {st:['예약 확정','ok'],t:'20m 돌파 이퀄라이징 집중반',m:'11.15 (토) 13:00, 가평 K26',inst:'서지안'},
+  {st:['수강 완료','cc'],t:'프리다이빙 입문 1일 체험 (풀장)',m:'10.19 (일) 09:00, 용인 딥스테이션',inst:'한도윤',review:true}
+];
+
+let S={tab:'log',route:'log',cls:'c1',slot:null,people:1,pay:'card',agree:false,spot:'s1',stars:5,mode:'student',cf:'전체',sf:'전체',booked:null};
+const scr=document.getElementById('screen');
+
+function tabbar(){
+  const t=[['log','기록',IC.log],['classes','클래스',IC.cls],['spots','포인트',IC.spot],['me','내 정보',IC.me]];
+  return `<div class="tabbar">${t.map(x=>`<button class="${S.tab===x[0]?'on':''}" onclick="go('${x[0]}')">${x[2]}${x[1]}</button>`).join('')}</div>`;
+}
+function hd(title,back){return `<div class="hd ${back?'sm':''}">${back?`<button class="back" onclick="go('${back}')">${IC.back}</button>`:''}<h2>${title}</h2></div>`}
+
+const V={
+log(){
+  const logs=[['11.08','토','용인 딥스테이션','CWT',[12,18,22,26,28,24]],['11.01','토','제주 서귀포 문섬','FIM',[10,15,20,24,30,27,22]],['10.25','토','가평 K26','',[]],['10.19','일','용인 딥스테이션','CWT',[8,12,15,18,20]]];
+  return `<div class="scroll">${hd('다이빙 기록')}<div class="pad">
+  <div class="pb"><div class="ttl">개인 기록<span>2026년</span></div>
+  <div><div class="k">CWT</div><div class="v">32<small>m</small></div></div><div><div class="k">FIM</div><div class="v">30<small>m</small></div></div>
+  <div><div class="k">STA</div><div class="v">4:12</div></div><div><div class="k">DYN</div><div class="v">100<small>m</small></div></div></div>
+  <div class="sec-t">최근 세션<a>기록 추가</a></div>
+  ${logs.map(l=>`<div class="logi"><div class="d"><b>${l[0].split('.')[1]}</b><span>${l[0].split('.')[0]}월 ${l[1]}</span></div><div class="c"><b>${l[2]}</b><div class="meta">${l[3]}${l[4].length?`, ${l[4].length}회, 최대 ${Math.max(...l[4])}m`:'풀장 훈련, STA 4:05, DYN 100m'}</div>
+  ${l[4].length?`<div class="depth">${l[4].map(d=>`<i style="height:${d/32*100}%"></i>`).join('')}</div>`:''}</div></div>`).join('')}
+  </div><div style="height:20px"></div></div>${tabbar()}`;
+},
+classes(){
+  const cats=['전체','입문','자격증','레벨업','트레이닝'];
+  const list=classes.filter(c=>S.cf==='전체'||c.lv===S.cf);
+  return `<div class="scroll">${hd('클래스')}
+  <div class="chips">${cats.map(c=>`<button class="chip ${S.cf===c?'on':''}" onclick="S.cf='${c}';render()">${c}</button>`).join('')}</div>
+  <div class="pad">${list.map(c=>{const left=c.slots.reduce((a,s)=>a+s[2],0),near=c.slots.find(s=>s[2]>0);return `<div class="ccard" onclick="openClass('${c.id}')">
+    <div class="thumb" style="background:${grad[c.g]}"><span>${c.dur}</span></div>
+    <div class="c"><div class="lv">${c.lv}</div><h3>${c.title}</h3><div class="who">${c.inst} 강사, ${c.where}</div>
+    <div class="row"><span class="price">${won(c.price)}</span><span class="star"><b>★</b> ${c.rating} (${c.rv})</span></div>
+    ${near&&near[2]<=2?`<div class="seat" style="margin-top:4px">${near[0]} ${near[1].split(' ')[1]||''} 잔여 ${near[2]}자리</div>`:''}</div></div>`}).join('')}</div></div>${tabbar()}`;
+},
+cls(){
+  const c=classes.find(x=>x.id===S.cls);
+  const total=S.slot!==null?c.price*S.people:0;
+  return `<div class="scroll">
+  <div class="hero" style="background:${grad[c.g]}"><button class="back" onclick="go('classes')">${IC.back}</button></div>
+  <div class="dtitle"><div class="lv">${c.lv}</div><h2>${c.title}</h2><div class="star"><b>★</b> ${c.rating} 후기 ${c.rv}개</div>
+  <div class="inst"><div class="av">${c.inst[0]}</div><div style="flex:1"><b>${c.inst}</b><span>${c.cert}, 강습 6년</span></div><span class="muted" style="font-size:12px">문의</span></div>
+  <div class="facts"><div><b>${c.dur}</b><span>소요</span></div><div><b>${c.depth}</b><span>수심</span></div><div><b>최대 ${c.max}명</b><span>정원</span></div></div></div>
+  <div class="pad">
+  <div class="sec-t">일정 선택</div>
+  <div class="slots">${c.slots.map((s,i)=>`<div class="slot ${s[2]===0?'full':''} ${s[2]>0&&s[2]<=2?'warn':''} ${S.slot===i?'on':''}" onclick="${s[2]?`S.slot=${i};S.people=1;render()`:''}"><b>${s[0]}</b>${s[1]}<br><span>${s[2]?`잔여 ${s[2]}`:'마감'}</span></div>`).join('')}</div>
+  ${S.slot!==null?`<div class="sec-t">인원</div><div class="cnt"><span>수강 인원</span><div class="stepper"><button onclick="S.people=Math.max(1,S.people-1);render()">−</button><b>${S.people}</b><button onclick="S.people=Math.min(${c.slots[S.slot][2]},S.people+1);render()">+</button></div></div>`:''}
+  <div class="sec-t">커리큘럼</div><ul class="curr">${c.curr.map(x=>`<li>${x[0]}<span>${x[1]}</span></li>`).join('')}</ul>
+  <div class="sec-t">장소</div><div style="font-size:13.5px;color:var(--ink2)">${c.where}<br><span class="muted">입장료와 장비 대여료는 현장 결제</span></div>
+  <div class="sec-t">취소와 환불</div>
+  <div class="policy"><div><span>수업 3일 전까지</span><span>전액 환불</span></div><div><span>수업 2일 전 ~ 전날</span><span>50% 환불</span></div><div><span>수업 당일</span><span>환불 불가</span></div>
+  <div style="margin-top:6px;color:var(--ink)">기상 악화로 강사가 취소하면 전액 환불 또는 일정 변경</div></div>
+  <div style="height:20px"></div></div></div>
+  <div class="cta"><div class="sum"><span>${S.slot!==null?`${S.people}명`:'1인'}</span><b>${won(S.slot!==null?total:c.price)}</b></div>
+  <button class="btn" ${S.slot===null?'disabled':''} onclick="go('pay')">${S.slot===null?'일정을 선택하세요':'예약하기'}</button></div>`;
+},
+pay(){
+  const c=classes.find(x=>x.id===S.cls); if(S.slot===null){S.slot=c.slots.findIndex(s=>s[2]>0)}
+  const s=c.slots[S.slot],total=c.price*S.people;
+  const pms=[['card','신용/체크카드'],['toss','토스페이'],['kakao','카카오페이'],['bank','계좌이체']];
+  return `${hd('결제','class')}<div class="scroll"><div class="pad">
+  <div class="box"><div style="font-weight:700;margin-bottom:4px">${c.title}</div><div class="muted" style="font-size:12.5px;margin-bottom:8px">${c.inst} 강사, ${c.where}</div>
+  <div class="r"><span class="muted">일정</span><span>${s[0]} (${s[1]})</span></div><div class="r"><span class="muted">인원</span><span>${S.people}명</span></div>
+  <div class="r"><span class="muted">수강료</span><span>${won(c.price)} × ${S.people}</span></div><div class="r t"><span>결제 금액</span><span>${won(total)}</span></div></div>
+  <div class="sec-t" style="margin-top:10px">결제 수단</div>
+  <div class="pm">${pms.map(p=>`<button class="${S.pay===p[0]?'on':''}" onclick="S.pay='${p[0]}';render()">${p[1]}</button>`).join('')}</div>
+  <div class="sec-t">동의</div>
+  <label class="agree"><input type="checkbox" ${S.agree?'checked':''} onchange="S.agree=this.checked;render()"><span>취소와 환불 규정, 안전 수칙, 개인정보 제3자 제공(강사)에 동의합니다.</span></label>
+  <div class="policy" style="margin-top:10px">결제 후 강사에게 예약 알림이 전송되고, 수업 하루 전 오전 9시에 준비물 안내 알림을 보내 드립니다.</div>
+  <div style="height:20px"></div></div></div>
+  <div class="cta"><button class="btn" ${S.agree?'':'disabled'} onclick="pay()">${won(total)} 결제하기</button></div>`;
+},
+done(){
+  const b=S.booked||{t:classes[0].title,d:'11.22 (토 09:00)',w:classes[0].where,n:1,amt:120000,no:'DL-261112-0418'};
+  return `<div class="scroll"><div class="done-ic">${IC.check}</div>
+  <div class="center"><div style="font-size:20px;font-weight:700">예약이 확정되었습니다</div></div>
+  <div class="ticket"><div class="top"><span>예약번호 ${b.no}</span><b>${b.t}</b></div>
+  <div class="bd"><span>일정</span><b>${b.d}</b><span>장소</span><span style="color:var(--ink)">${b.w}</span><span>인원</span><span style="color:var(--ink)">${b.n}명</span><span>결제</span><span style="color:var(--ink)">${won(b.amt)}</span></div></div>
+  <div class="pad" style="margin-top:14px"><div class="policy"><b>준비물</b>수영복, 수건, 세면도구. 마스크와 핀은 강사가 준비합니다. 수업 12시간 전부터 음주를 삼가 주세요.</div></div></div>
+  <div class="cta"><button class="btn line" onclick="toast('캘린더에 추가했습니다')">캘린더 추가</button><button class="btn" onclick="go('me')">내 예약 보기</button></div>`;
+},
+spots(){
+  const regs=['전체','제주','강원','경북'];
+  const list=spots.filter(s=>S.sf==='전체'||s.reg===S.sf);
+  return `<div class="scroll">${hd('다이빙 포인트')}
+  <div class="map"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M52 2 L70 4 L74 20 L72 40 L76 60 L70 74 L58 78 L46 76 L40 66 L44 52 L38 40 L44 26 L46 10Z" fill="#f4f1ea" stroke="#d8d2c4" stroke-width=".6"/><ellipse cx="28" cy="88" rx="10" ry="4" fill="#f4f1ea" stroke="#d8d2c4" stroke-width=".6"/><circle cx="88" cy="32" r="2" fill="#f4f1ea" stroke="#d8d2c4" stroke-width=".6"/></svg>
+  ${list.map(s=>`<span class="pin ${S.spot===s.id?'on':''}" style="left:${s.x}%;top:${s.y}%" onclick="openSpot('${s.id}')">${s.name.split(' ').pop()}</span>`).join('')}</div>
+  <div class="chips" style="padding-top:14px">${regs.map(r=>`<button class="chip ${S.sf===r?'on':''}" onclick="S.sf='${r}';render()">${r}</button>`).join('')}</div>
+  <div class="pad">${list.map(s=>`<div class="spot" onclick="openSpot('${s.id}')"><div class="c"><b>${s.name}</b> <span class="star"><b>★</b> ${s.rating} (${s.rv})</span>
+  <div class="cond"><span>수온 ${s.temp}</span><span>시야 ${s.vis}</span><span>${s.depth}</span><span class="${s.st[1]}">${s.st[0]}</span></div></div></div>`).join('')}
+  <div class="muted" style="font-size:11.5px;padding:12px 0">수온과 시야는 최근 7일 리뷰를 바탕으로 표시합니다.</div></div></div>${tabbar()}`;
+},
+spot(){
+  const s=spots.find(x=>x.id===S.spot),rv=reviews[s.id]||[];
+  const related=classes.filter(c=>c.where.includes(s.name.split(' ').pop())||c.where.includes(s.name.split(' ')[0]));
+  return `${hd(s.name,'spots')}<div class="scroll"><div class="pad">
+  <div class="cond" style="margin-top:0"><span>수온 ${s.temp}</span><span>시야 ${s.vis}</span><span>${s.depth}</span><span class="${s.st[1]}">${s.st[0]}</span></div>
+  <p style="font-size:13.5px;color:var(--ink2);margin:14px 0">${s.desc}</p>
+  <div class="box" style="margin:0"><div class="r"><span class="muted">입수 방법</span><span>${s.access}</span></div><div class="r"><span class="muted">지역</span><span>${s.reg}</span></div></div>
+  ${related.length?`<div class="sec-t">이 포인트에서 열리는 클래스</div>${related.map(c=>`<div class="ccard" onclick="openClass('${c.id}')" style="padding:10px 0"><div class="thumb" style="width:60px;height:60px;background:${grad[c.g]}"></div><div class="c"><h3 style="font-size:14px;margin:0 0 2px">${c.title}</h3><div class="who">${won(c.price)}</div></div></div>`).join('')}`:''}
+  <div class="sec-t">리뷰 ${s.rv}<a onclick="openSheet()">리뷰 쓰기</a></div>
+  <div class="rating"><div class="big">${s.rating}</div><div class="bars">${[[5,78],[4,16],[3,4],[2,1],[1,1]].map(b=>`<div>${b[0]}<i style="--w:${b[1]}%"></i></div>`).join('')}</div></div>
+  ${rv.map(r=>`<div class="rev"><div class="h"><b>${r[0]}</b><span class="muted">${r[1]}</span></div><div class="star" style="margin-top:2px"><b>${'★'.repeat(r[2])}</b><span style="color:#d6dde2">${'★'.repeat(5-r[2])}</span></div><p>${r[3]}</p><div class="tags">${r[4].map(t=>`<span>${t}</span>`).join('')}</div></div>`).join('')}
+  <div style="height:20px"></div></div></div>
+  <div class="sheet" id="sheet" onclick="if(event.target===this)this.classList.remove('on')"><div class="in"><h3>${s.name} 리뷰</h3>
+  <div class="stars" id="stars">${[1,2,3,4,5].map(i=>`<button class="${i<=S.stars?'on':''}" onclick="S.stars=${i};document.querySelectorAll('#stars button').forEach((b,j)=>b.classList.toggle('on',j<${i}))">★</button>`).join('')}</div>
+  <div class="cond" style="margin:0 0 12px"><span>수온 입력</span><span>시야 입력</span><span>사진 추가</span></div>
+  <textarea placeholder="오늘 바다 상태는 어땠나요?"></textarea><button class="btn" style="width:100%" onclick="document.getElementById('sheet').classList.remove('on');toast('리뷰가 등록되었습니다')">등록</button></div></div>`;
+},
+me(){
+  const list=S.booked?[{st:['예약 확정','ok'],t:S.booked.t,m:`${S.booked.d}, ${S.booked.w}`,inst:''},...myRsv]:myRsv;
+  if(S.mode==='inst')return V.inst();
+  return `<div class="scroll">${hd('내 정보')}
+  <div class="prof"><div class="av">김</div><div><b>김바다</b><div class="muted" style="font-size:12.5px">AIDA 2, 다이빙 기록 42회</div></div></div>
+  <div class="mode"><button class="on">수강생</button><button onclick="S.mode='inst';render()">강사</button></div>
+  <div class="pad"><div class="sec-t">내 예약</div>
+  ${list.map(r=>`<div class="rsv"><span class="st ${r.st[1]}">${r.st[0]}</span><b>${r.t}</b><div class="m">${r.m}</div>${r.review?`<button class="btn line" style="height:38px;font-size:13px;margin-top:10px;width:100%" onclick="toast('클래스 리뷰 작성 화면으로 이동합니다')">수업 후기 쓰기</button>`:''}</div>`).join('')}
+  <div class="menu-l" style="margin-top:10px"><div>알림 설정<span>›</span></div><div>결제 내역<span>›</span></div><div>자격증 등록<span>›</span></div></div>
+  </div></div>${tabbar()}`;
+},
+inst(){
+  const sess=[['11.15','토 13:00','20m 돌파 이퀄라이징 집중반','가평 K26',2,3,false],['11.15','토 09:00','주말 해양 펀다이빙 트레이닝','제주 문섬',2,6,true],['11.16','일 09:00','주말 해양 펀다이빙 트레이닝','제주 문섬',4,6,true],['11.22','토 13:00','20m 돌파 이퀄라이징 집중반','가평 K26',0,3,false]];
+  return `<div class="scroll">${hd('내 정보')}
+  <div class="prof"><div class="av">서</div><div><b>서지안 강사</b><div class="muted" style="font-size:12.5px">Molchanovs 강사, 클래스 2개 운영</div></div></div>
+  <div class="mode"><button onclick="S.mode='student';render()">수강생</button><button class="on">강사</button></div>
+  <div class="pad"><div class="sec-t">이번 달</div>
+  <div class="kpi"><div><span>예약</span><b>18건</b></div><div><span>정산 예정</span><b>142만</b></div><div><span>평점</span><b>4.9</b></div></div>
+  <div class="sec-t">다가오는 일정<a onclick="toast('일정 추가 화면으로 이동합니다')">일정 추가</a></div>
+  ${sess.map((x,i)=>`<div class="sess"><div class="t">${x[0]}<span>${x[1]}</span></div><div class="c"><b>${x[2]}</b>${x[6]?'<span class="wx">풍랑 예보</span>':''}<div class="muted" style="font-size:12px">${x[3]}</div><div class="cap"><i style="width:${x[4]/x[5]*100}%"></i></div></div><div class="n">${x[4]}/${x[5]}</div></div>`).join('')}
+  <div class="policy" style="margin-top:14px"><b>기상 취소</b>풍랑 예보가 있는 해양 수업은 전날 오후 6시까지 취소 여부를 정하면 예약자 전원에게 알림과 전액 환불이 자동 처리됩니다.
+  <button class="btn line" style="height:38px;font-size:13px;margin-top:10px;width:100%" onclick="toast('11.15 문섬 수업 예약자 2명에게 취소 알림을 보냈습니다')">11.15 문섬 수업 기상 취소</button></div>
+  <div style="height:20px"></div></div></div>${tabbar()}`;
+}
+};
+
+function render(){
+  const r=S.route;
+  scr.innerHTML=V[r]();
+  document.querySelectorAll('.side button').forEach(b=>{const g=b.dataset.go.split(':')[0];const inst=r==='me'&&S.mode==='inst';b.classList.toggle('on',(g===r&&!(g==='me'&&inst))||(g==='class'&&r==='cls')||(g==='inst'&&inst))});
+}
+function go(r){
+  if(['log','classes','spots','me'].includes(r)){S.tab=r;}
+  if(r==='class')r='cls';
+  if(r==='me'&&S.route!=='me'){}
+  S.route=r;render();const sc=scr.querySelector('.scroll');if(sc)sc.scrollTop=0;
+}
+function openClass(id){if(S.cls!==id){S.slot=null;S.people=1}S.cls=id;S.agree=false;S.tab='classes';go('cls')}
+function openSpot(id){S.spot=id;S.tab='spots';go('spot')}
+function openSheet(){document.getElementById('sheet').classList.add('on')}
+function pay(){
+  const c=classes.find(x=>x.id===S.cls),s=c.slots[S.slot];
+  S.booked={t:c.title,d:`${s[0]} (${s[1]})`,w:c.where,n:S.people,amt:c.price*S.people,no:'DL-261112-0'+(400+Math.floor(Math.random()*99))};
+  s[2]-=S.people;S.slot=null;S.agree=false;S.people=1;go('done');
+}
+let tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)}
+document.querySelectorAll('.side button').forEach(b=>b.onclick=()=>{
+  const [r,id]=b.dataset.go.split(':');
+  if(r==='class')return openClass(id);
+  if(r==='spot')return openSpot(id);
+  if(r==='inst'){S.mode='inst';S.tab='me';return go('me')}
+  if(r==='me')S.mode='student';
+  if(r==='pay'&&S.slot===null){S.cls='c1';S.slot=2;S.tab='classes'}
+  go(r);
+});
+render();
+</script>
+</body>
+</html>

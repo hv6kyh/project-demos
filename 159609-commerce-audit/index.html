@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>커머스 플랫폼 기술 진단 보고서 (샘플)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --paper:#fbfaf7; --ink:#1b1c1e; --ink2:#4a4d52; --ink3:#83878d; --line:#e4e1da; --line2:#d3cfc6;
+  --crit:#b3261e; --crit-bg:#fbeceb; --high:#c26a00; --high-bg:#fdf1e2; --med:#5b6b7a; --med-bg:#eef1f4; --ok:#2e6b43; --ok-bg:#e9f3ec;
+  --accent:#1f3a5f;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,-apple-system,system-ui,sans-serif;font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.notice{background:var(--ink);color:#e8e6e1;font-size:12.5px;padding:8px 0}
+.notice .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+header.cover{border-bottom:1px solid var(--line);padding:56px 0 40px}
+.doc-no{font-size:12px;letter-spacing:.08em;color:var(--ink3);font-variant-numeric:tabular-nums}
+h1{font-size:34px;line-height:1.3;margin:10px 0 28px;letter-spacing:-.02em;font-weight:700}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--ink);}
+.meta div{padding:12px 16px 12px 0;border-bottom:1px solid var(--line)}
+.meta dt{font-size:12px;color:var(--ink3)}
+.meta dd{margin:2px 0 0;font-weight:600;font-size:14px}
+nav.toc{position:sticky;top:0;z-index:5;background:rgba(251,250,247,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+nav.toc .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+nav.toc a{white-space:nowrap;text-decoration:none;font-size:13.5px;color:var(--ink2);padding:13px 12px;border-bottom:2px solid transparent}
+nav.toc a.on{color:var(--ink);border-color:var(--ink);font-weight:600}
+section{padding:56px 0 8px}
+h2{font-size:22px;margin:0 0 20px;letter-spacing:-.01em;display:flex;gap:12px;align-items:baseline}
+h2 .n{font-size:14px;color:var(--ink3);font-weight:500;font-variant-numeric:tabular-nums}
+h3{font-size:16px;margin:28px 0 10px}
+p{margin:0 0 12px;color:var(--ink2)}
+.verdict{display:grid;grid-template-columns:1.3fr 1fr;gap:32px;align-items:start}
+.verdict-box{border:1px solid var(--ink);padding:24px 26px;background:#fff}
+.verdict-box .label{font-size:12px;color:var(--ink3)}
+.verdict-box .v{font-size:26px;font-weight:700;margin:4px 0 12px;color:var(--high)}
+.verdict-box ul{margin:0;padding-left:18px;color:var(--ink2)}
+.verdict-box li{margin:4px 0}
+.counts{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line2);background:#fff}
+.counts div{padding:16px;border-right:1px solid var(--line)}
+.counts div:last-child{border-right:0}
+.counts b{display:block;font-size:30px;font-variant-numeric:tabular-nums;line-height:1.1}
+.counts span{font-size:12.5px;color:var(--ink3)}
+.c-crit b{color:var(--crit)} .c-high b{color:var(--high)} .c-med b{color:var(--med)} .c-ok b{color:var(--ok)}
+.scope-table{width:100%;border-collapse:collapse;margin-top:18px;font-size:13.5px;background:#fff}
+.scope-table th,.scope-table td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+.scope-table th{background:#f3f1ec;font-weight:600;width:140px}
+
+/* flow */
+.flow{background:#fff;border:1px solid var(--line2);padding:28px 20px 20px;overflow-x:auto}
+.flow-row{display:flex;align-items:center;gap:0;min-width:900px}
+.node{flex:1;border:1px solid var(--line2);padding:12px 10px;text-align:center;cursor:pointer;background:#fff;position:relative;transition:border-color .15s}
+.node:hover{border-color:var(--ink)}
+.node.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.node .t{font-weight:600;font-size:14px}
+.node .s{font-size:11.5px;color:var(--ink3)}
+.node.on .s{color:#c9c9c9}
+.node .badge{position:absolute;top:-9px;right:-9px;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center}
+.b-crit{background:var(--crit)} .b-high{background:var(--high)} .b-med{background:var(--med)}
+.arrow{width:34px;flex:none;text-align:center;color:var(--ink3);font-size:13px}
+.flow-detail{margin-top:20px;border-top:1px solid var(--line);padding-top:18px;min-height:160px}
+.flow-detail h4{margin:0 0 10px;font-size:15px}
+.scn{display:grid;grid-template-columns:96px 1fr;gap:6px 14px;font-size:13.5px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.scn:last-child{border-bottom:0}
+.scn .k{color:var(--ink3)}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--ink3);margin-top:12px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:0}
+
+/* findings */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line2);background:#fff;padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--ink2)}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.sep{width:1px;background:var(--line2);margin:0 4px}
+table.f{width:100%;border-collapse:collapse;background:#fff;font-size:13.5px}
+table.f th{font-size:12px;color:var(--ink3);font-weight:500;text-align:left;padding:10px 12px;border-bottom:1px solid var(--ink)}
+table.f td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.f tr.row{cursor:pointer}
+table.f tr.row:hover td{background:#faf8f3}
+table.f .id{font-variant-numeric:tabular-nums;color:var(--ink3);white-space:nowrap}
+.sev{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;white-space:nowrap}
+.sev.crit{color:var(--crit);background:var(--crit-bg)} .sev.high{color:var(--high);background:var(--high-bg)} .sev.med{color:var(--med);background:var(--med-bg)}
+tr.more td{background:#fcfbf8;padding:4px 12px 18px}
+.more-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;font-size:13px;color:var(--ink2)}
+.more-grid b{display:block;font-size:12px;color:var(--ink);margin:10px 0 4px}
+code,pre{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:12px}
+pre{background:#f3f1ec;padding:10px 12px;margin:6px 0 0;overflow-x:auto;white-space:pre;color:#333}
+
+/* load */
+.load{display:grid;grid-template-columns:1.6fr 1fr;gap:28px;align-items:start}
+.chart{background:#fff;border:1px solid var(--line2);padding:16px}
+.chart svg{width:100%;height:auto;display:block}
+.kv{width:100%;border-collapse:collapse;font-size:13.5px}
+.kv td{padding:9px 0;border-bottom:1px solid var(--line)}
+.kv td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.scenario-tabs{display:flex;gap:0;margin-bottom:12px;border:1px solid var(--line2);width:max-content;background:#fff}
+.scenario-tabs button{border:0;background:none;padding:7px 14px;font-family:inherit;font-size:13px;cursor:pointer;color:var(--ink2)}
+.scenario-tabs button.on{background:var(--ink);color:#fff}
+
+/* recovery */
+table.r{width:100%;border-collapse:collapse;background:#fff;font-size:13.5px}
+table.r th{text-align:left;font-size:12px;color:var(--ink3);font-weight:500;padding:10px 12px;border-bottom:1px solid var(--ink)}
+table.r td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.st{font-weight:600;font-size:12.5px;white-space:nowrap}
+.st.ok{color:var(--ok)} .st.no{color:var(--crit)} .st.part{color:var(--high)}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line2);background:#fff}
+.road > div{padding:20px 20px 16px;border-right:1px solid var(--line)}
+.road > div:last-child{border-right:0}
+.road h4{margin:0 0 4px;font-size:15px}
+.road .when{font-size:12px;color:var(--ink3);margin-bottom:12px}
+.road ol{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink2)}
+.road li{margin:6px 0}
+.road .md{color:var(--ink3);font-size:12px;font-variant-numeric:tabular-nums}
+
+/* schedule */
+.days{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--line2);background:#fff}
+.days div{padding:14px 12px;border-right:1px solid var(--line);font-size:13px;color:var(--ink2)}
+.days div:last-child{border-right:0}
+.days b{display:block;color:var(--ink);font-size:12px;margin-bottom:6px;font-variant-numeric:tabular-nums}
+footer{margin-top:72px;border-top:1px solid var(--line);padding:24px 0 48px;font-size:12.5px;color:var(--ink3)}
+
+@media (max-width:820px){
+  h1{font-size:26px}
+  .meta{grid-template-columns:1fr 1fr}
+  .verdict,.load{grid-template-columns:1fr}
+  .counts{grid-template-columns:repeat(2,1fr)}
+  .counts div:nth-child(2){border-right:0}
+  .counts div:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .more-grid{grid-template-columns:1fr}
+  .road{grid-template-columns:1fr}
+  .road > div{border-right:0;border-bottom:1px solid var(--line)}
+  .days{grid-template-columns:1fr}
+  .days div{border-right:0;border-bottom:1px solid var(--line)}
+  table.f .hide-m{display:none}
+  table.f th:nth-child(3),table.f td:nth-child(3){display:none}
+  table.f td,table.f th{padding:10px 8px}
+  table.r{display:block;overflow-x:auto}
+  .more-grid pre{white-space:pre-wrap;word-break:break-all}
+  table.f{table-layout:fixed}
+  table.f th:nth-child(1){width:52px} table.f th:nth-child(2){width:78px}
+}
+</style>
+</head>
+<body>
+
+<div class="notice"><div class="wrap"><span>지원용 샘플 보고서입니다. 시스템 구성과 수치는 공고 내용을 바탕으로 가정한 예시입니다.</span><span>Wishket #159609</span></div></div>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="doc-no">TECH-AUDIT 2026-11 / REV 0.9</div>
+    <h1>커머스 플랫폼 정식 오픈 전<br>기술 진단 보고서</h1>
+    <dl class="meta">
+      <div><dt>진단 대상</dt><dd>웹, iOS, Android, API, WMS/ERP 연동</dd></div>
+      <div><dt>진단 기간</dt><dd>7일 (영업일 5일 + 보고 2일)</dd></div>
+      <div><dt>인프라</dt><dd>AWS (ECS, RDS MySQL, SQS)</dd></div>
+      <div><dt>판정</dt><dd>조건부 오픈 가능</dd></div>
+    </dl>
+  </div>
+</header>
+
+<nav class="toc"><div class="wrap">
+  <a href="#s1">1. 요약</a>
+  <a href="#s2">2. 주문 흐름과 장애 지점</a>
+  <a href="#s3">3. 발견 사항</a>
+  <a href="#s4">4. 부하 테스트</a>
+  <a href="#s5">5. 백업과 복구</a>
+  <a href="#s6">6. 개선 로드맵</a>
+  <a href="#s7">7. 진단 일정</a>
+</div></nav>
+
+<main class="wrap">
+
+<section id="s1">
+  <h2><span class="n">01</span>요약</h2>
+  <div class="verdict">
+    <div class="verdict-box">
+      <div class="label">종합 판정</div>
+      <div class="v">조건부 오픈 가능</div>
+      <p>기능 구현 수준은 오픈에 무리가 없습니다. 다만 결제 이후 주문이 WMS와 ERP로 넘어가는 구간에 재시도와 중복 방지 장치가 없어, 트래픽이 몰리거나 외부 연동이 잠깐만 멈춰도 주문 누락과 이중 출고가 발생할 수 있는 구조입니다. 아래 세 가지를 오픈 전에 해결하는 것을 조건으로 권고합니다.</p>
+      <ul>
+        <li>PG 결제 승인과 주문 생성 사이의 정합성 보정 배치 추가 (F-01)</li>
+        <li>WMS 출고 요청에 멱등 키 적용 (F-02)</li>
+        <li>RDS 시점 복구(PITR) 복원 리허설 1회 실시 (F-05)</li>
+      </ul>
+    </div>
+    <div>
+      <div class="counts">
+        <div class="c-crit"><b>3</b><span>Critical</span></div>
+        <div class="c-high"><b>6</b><span>High</span></div>
+        <div class="c-med"><b>9</b><span>Medium</span></div>
+        <div class="c-ok"><b>41</b><span>점검 통과</span></div>
+      </div>
+      <table class="scope-table">
+        <tr><th>소스코드</th><td>API 서버, 관리자, 웹 프론트, iOS, Android 저장소 5개</td></tr>
+        <tr><th>인프라</th><td>VPC, 보안그룹, IAM, ECS 오토스케일링, RDS, SQS, CloudWatch</td></tr>
+        <tr><th>데이터베이스</th><td>스키마 64개 테이블, 슬로우 쿼리 로그 14일치, 인덱스 사용률</td></tr>
+        <tr><th>연동</th><td>PG 결제 승인과 웹훅, WMS 출고 요청, ERP 매출 전표, 알림톡</td></tr>
+        <tr><th>제외</th><td>침투 테스트, 디자인과 UX 평가, 코드 직접 수정</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="s2">
+  <h2><span class="n">02</span>주문 흐름과 장애 지점</h2>
+  <p>주문 한 건이 결제부터 ERP 전표까지 지나가는 경로입니다. 단계를 누르면 해당 지점에서 확인한 장애 시나리오와 현재 대응 상태가 표시됩니다.</p>
+  <div class="flow">
+    <div class="flow-row" id="flowRow"></div>
+    <div class="legend"><span><i class="b-crit"></i>Critical</span><span><i class="b-high"></i>High</span><span><i class="b-med"></i>Medium</span></div>
+    <div class="flow-detail" id="flowDetail"></div>
+  </div>
+</section>
+
+<section id="s3">
+  <h2><span class="n">03</span>발견 사항</h2>
+  <div class="filters" id="filters"></div>
+  <table class="f">
+    <thead><tr><th>ID</th><th>심각도</th><th>영역</th><th>내용</th><th class="hide-m">예상 공수</th></tr></thead>
+    <tbody id="findings"></tbody>
+  </table>
+</section>
+
+<section id="s4">
+  <h2><span class="n">04</span>부하 테스트</h2>
+  <p>스테이징 환경(운영과 동일 사양)에서 k6로 측정했습니다. 오픈 이벤트 시나리오는 상품 상세 조회 70%, 장바구니 20%, 주문 결제 10% 비율입니다.</p>
+  <div class="scenario-tabs" id="scTabs">
+    <button data-k="event" class="on">오픈 이벤트</button>
+    <button data-k="checkout">결제 집중</button>
+    <button data-k="after">개선 후 예상</button>
+  </div>
+  <div class="load">
+    <div class="chart"><svg id="chart" viewBox="0 0 640 300"></svg></div>
+    <div>
+      <table class="kv" id="loadKv"></table>
+      <p style="margin-top:14px;font-size:13.5px" id="loadNote"></p>
+    </div>
+  </div>
+</section>
+
+<section id="s5">
+  <h2><span class="n">05</span>백업과 복구</h2>
+  <p>설정 화면 확인에 그치지 않고 실제로 복원해 본 결과입니다. 목표 RPO와 RTO는 미팅에서 확정할 값을 가정했습니다.</p>
+  <table class="r">
+    <thead><tr><th>대상</th><th>현재 설정</th><th>복원 실측</th><th>목표</th><th>판정</th></tr></thead>
+    <tbody>
+      <tr><td>주문 DB (RDS)</td><td>자동 백업 7일, PITR 활성</td><td>스냅샷 복원 38분, PITR 복원 52분</td><td>RPO 5분 / RTO 1시간</td><td><span class="st ok">충족</span></td></tr>
+      <tr><td>상품 이미지 (S3)</td><td>버저닝 비활성</td><td>삭제 파일 복구 불가</td><td>삭제 후 30일 복구</td><td><span class="st no">미충족</span></td></tr>
+      <tr><td>SQS 메시지</td><td>DLQ 미설정, 보존 4일</td><td>처리 실패 메시지 유실 확인</td><td>실패 메시지 보존과 재처리</td><td><span class="st no">미충족</span></td></tr>
+      <tr><td>WMS 연동 이력</td><td>애플리케이션 로그만 존재</td><td>특정 주문의 전송 여부 추적에 22분 소요</td><td>주문번호로 1분 내 조회</td><td><span class="st part">부분 충족</span></td></tr>
+      <tr><td>배포 롤백</td><td>ECS 이전 태스크 정의 보존</td><td>롤백 4분</td><td>10분 이내</td><td><span class="st ok">충족</span></td></tr>
+      <tr><td>시크릿</td><td>환경 변수에 PG 키 평문 저장</td><td>해당 없음</td><td>Secrets Manager 이관</td><td><span class="st part">부분 충족</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="s6">
+  <h2><span class="n">06</span>개선 로드맵</h2>
+  <div class="road">
+    <div>
+      <h4>오픈 전 필수</h4>
+      <div class="when">D-7까지</div>
+      <ol>
+        <li>결제와 주문 정합성 보정 배치 <span class="md">3MD</span></li>
+        <li>WMS 출고 요청 멱등 키 <span class="md">2MD</span></li>
+        <li>SQS DLQ 설정과 재처리 스크립트 <span class="md">1MD</span></li>
+        <li>PITR 복원 리허설 <span class="md">0.5MD</span></li>
+      </ol>
+    </div>
+    <div>
+      <h4>오픈 후 30일</h4>
+      <div class="when">안정화 기간</div>
+      <ol>
+        <li>주문 목록 쿼리 인덱스 추가 <span class="md">1MD</span></li>
+        <li>재고 차감 동시성 처리 <span class="md">3MD</span></li>
+        <li>연동 이력 테이블과 관리자 조회 화면 <span class="md">3MD</span></li>
+        <li>PG 키 Secrets Manager 이관 <span class="md">1MD</span></li>
+      </ol>
+    </div>
+    <div>
+      <h4>오픈 후 90일</h4>
+      <div class="when">구조 개선</div>
+      <ol>
+        <li>ERP 전표 생성 비동기화 <span class="md">5MD</span></li>
+        <li>읽기 전용 복제본 분리 <span class="md">2MD</span></li>
+        <li>앱 강제 업데이트 정책 정비 <span class="md">2MD</span></li>
+        <li>장애 알림 기준과 대응 문서화 <span class="md">2MD</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="s7">
+  <h2><span class="n">07</span>진단 일정</h2>
+  <div class="days">
+    <div><b>DAY 1</b>착수 미팅, 권한 확보, 아키텍처 파악</div>
+    <div><b>DAY 2</b>주문, 결제, 재고 코드 리뷰</div>
+    <div><b>DAY 3</b>WMS/ERP 연동과 장애 시나리오 재현</div>
+    <div><b>DAY 4</b>AWS 구성, DB 스키마, 슬로우 쿼리</div>
+    <div><b>DAY 5</b>부하 테스트와 복원 리허설</div>
+    <div><b>DAY 6</b>보고서 작성, 개선안 공수 산정</div>
+    <div><b>DAY 7</b>결과 보고 미팅, 질의응답</div>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap">본 문서는 지원서와 함께 제출하는 산출물 형식 샘플입니다. 실제 진단 보고서는 같은 구성에 코드 위치, 재현 절차, 수정 예시 코드를 포함해 PDF와 웹 문서로 함께 전달합니다.</div></footer>
+
+<script>
+const flow=[
+  {k:'app',t:'앱/웹',s:'주문서 제출',issues:[
+    {sev:'med',title:'결제 버튼 연타 시 주문서가 2건 생성됨',now:'프론트에서 버튼 비활성화만 처리, 서버 측 중복 방지 없음',fix:'주문서 생성 API에 클라이언트 요청 ID를 받아 10분간 중복 거부'}
+  ]},
+  {k:'api',t:'주문 API',s:'주문 생성, 재고 차감',issues:[
+    {sev:'high',title:'동시 주문 시 재고가 음수로 내려감',now:'SELECT 후 UPDATE 방식, 잠금 없음. 재고 10개 상품에 동시 50건 요청 시 재고 -7 재현',fix:'UPDATE ... SET stock = stock - ? WHERE stock >= ? 조건부 차감으로 변경'}
+  ]},
+  {k:'pg',t:'PG 결제',s:'승인, 웹훅',issues:[
+    {sev:'crit',title:'결제는 승인됐는데 주문이 생성되지 않는 경우',now:'승인 응답 수신 직후 서버가 재시작되면 주문 저장 전에 요청이 끊김. 보정 수단 없음',fix:'PG 거래 조회 API로 10분 주기 대사 배치 추가, 미생성 건 자동 생성 또는 자동 취소'},
+    {sev:'high',title:'웹훅 중복 수신 시 결제 완료 처리가 2번 실행됨',now:'웹훅 처리에 거래 ID 기준 중복 체크 없음',fix:'거래 ID 유니크 제약과 처리 상태 테이블 추가'}
+  ]},
+  {k:'db',t:'주문 DB',s:'RDS MySQL',issues:[
+    {sev:'high',title:'주문 목록 조회가 전체 스캔으로 동작',now:'orders(member_id, created_at) 복합 인덱스 없음. 데이터 50만 건 기준 1.8초',fix:'복합 인덱스 추가 후 32ms 확인'}
+  ]},
+  {k:'queue',t:'메시지 큐',s:'SQS',issues:[
+    {sev:'crit',title:'처리 실패 메시지가 4일 뒤 사라짐',now:'DLQ가 없어 WMS 장애가 길어지면 출고 요청 자체가 유실',fix:'DLQ 설정, 최대 수신 횟수 5회, DLQ 적재 시 슬랙 알림과 재처리 스크립트'}
+  ]},
+  {k:'wms',t:'WMS',s:'출고 요청',issues:[
+    {sev:'crit',title:'타임아웃 후 재시도하면 같은 주문이 두 번 출고됨',now:'WMS가 요청을 처리했지만 응답이 늦어 타임아웃, 재시도 시 신규 출고로 인식',fix:'주문번호와 차수 기반 멱등 키 전달, WMS 측 중복 거부 처리'}
+  ]},
+  {k:'erp',t:'ERP',s:'매출 전표',issues:[
+    {sev:'med',title:'전표 생성이 주문 트랜잭션 안에서 동기 호출됨',now:'ERP 응답이 3초를 넘으면 주문 API 전체가 지연',fix:'전표 생성을 큐로 분리, 일 마감 대사 리포트 추가'}
+  ]}
+];
+const sevName={crit:'Critical',high:'High',med:'Medium'};
+const sevOrder={crit:0,high:1,med:2};
+const row=document.getElementById('flowRow'),detail=document.getElementById('flowDetail');
+flow.forEach((n,i)=>{
+  const worst=n.issues.slice().sort((a,b)=>sevOrder[a.sev]-sevOrder[b.sev])[0].sev;
+  const el=document.createElement('div');
+  el.className='node';el.dataset.k=n.k;
+  el.innerHTML=`<div class="t">${n.t}</div><div class="s">${n.s}</div><span class="badge b-${worst}">${n.issues.length}</span>`;
+  el.onclick=()=>showFlow(n.k);
+  row.appendChild(el);
+  if(i<flow.length-1){const a=document.createElement('div');a.className='arrow';a.textContent='→';row.appendChild(a)}
+});
+function showFlow(k){
+  const n=flow.find(x=>x.k===k);
+  document.querySelectorAll('.node').forEach(e=>e.classList.toggle('on',e.dataset.k===k));
+  detail.innerHTML=`<h4>${n.t} 구간</h4>`+n.issues.map(s=>`
+    <div class="scn"><span class="k">심각도</span><span><span class="sev ${s.sev}">${sevName[s.sev]}</span></span>
+    <span class="k">시나리오</span><span><b>${s.title}</b></span>
+    <span class="k">현재 상태</span><span>${s.now}</span>
+    <span class="k">권고</span><span>${s.fix}</span></div>`).join('');
+}
+showFlow('pg');
+
+const findings=[
+  {id:'F-01',sev:'crit',area:'연동',title:'PG 결제 승인 후 주문 미생성 건에 대한 보정 수단 없음',md:'3MD',
+   ev:'PaymentService.confirm()에서 승인 응답 이후 주문 저장 전에 예외가 나면 롤백만 되고 PG 취소는 호출되지 않음. 최근 스테이징 로그에서 동일 패턴 3건 확인.',
+   impact:'고객은 결제 완료, 회사 쪽 주문은 없음. CS 인입 후 수동 대사 필요.',
+   fix:'10분 주기 대사 배치. PG 거래 조회 결과와 주문 테이블을 비교해 미생성 건은 주문 생성, 30분 경과 건은 자동 취소.',
+   code:'SELECT p.tid FROM pg_transactions p\nLEFT JOIN orders o ON o.pg_tid = p.tid\nWHERE p.status = \'APPROVED\' AND o.id IS NULL\n  AND p.approved_at < NOW() - INTERVAL 10 MINUTE;'},
+  {id:'F-02',sev:'crit',area:'연동',title:'WMS 출고 요청 재시도 시 이중 출고',md:'2MD',
+   ev:'WmsClient의 타임아웃 3초, 재시도 3회. WMS 응답을 5초 지연시킨 테스트에서 같은 주문 출고 요청 2건 생성.',
+   impact:'실물 이중 발송. 회수 비용과 재고 불일치 발생.',
+   fix:'요청 헤더에 주문번호 기반 멱등 키 추가. WMS 측에서 동일 키 재요청 시 기존 결과 반환.',
+   code:'X-Idempotency-Key: ORD-20261112-000184:1'},
+  {id:'F-03',sev:'crit',area:'인프라',title:'SQS DLQ 미설정으로 실패 메시지 유실',md:'1MD',
+   ev:'order-to-wms 큐 Redrive policy 없음. 메시지 보존 기간 4일.',
+   impact:'WMS 점검이나 장애가 길어지면 출고 요청이 사라지고 추적 불가.',
+   fix:'DLQ 연결, maxReceiveCount 5, DLQ 메시지 수 CloudWatch 경보.',code:''},
+  {id:'F-04',sev:'high',area:'코드',title:'재고 차감 동시성 처리 누락',md:'3MD',
+   ev:'재고 10개 상품에 동시 주문 50건 요청 시 최종 재고 -7.',impact:'품절 상품 판매, 취소와 보상 비용.',
+   fix:'조건부 UPDATE로 원자적 차감. 이벤트 상품은 Redis 선차감 검토.',code:'UPDATE product_stock SET qty = qty - :n\nWHERE sku = :sku AND qty >= :n;'},
+  {id:'F-05',sev:'high',area:'DB',title:'PITR 활성화되어 있으나 복원해 본 이력 없음',md:'0.5MD',
+   ev:'복원 절차 문서 없음, 담당자 미지정.',impact:'실제 장애 시 복원 시간 예측 불가.',fix:'복원 리허설 1회, 절차서 작성. 실측 52분.',code:''},
+  {id:'F-06',sev:'high',area:'DB',title:'주문 목록 조회 쿼리 전체 스캔',md:'1MD',
+   ev:'슬로우 쿼리 상위 1위, 평균 1.8초, 일 3,200회.',impact:'회원 증가 시 마이페이지와 관리자 화면 지연.',fix:'(member_id, created_at) 복합 인덱스. 적용 후 32ms.',code:'CREATE INDEX idx_orders_member_created\n  ON orders (member_id, created_at DESC);'},
+  {id:'F-07',sev:'high',area:'연동',title:'PG 웹훅 중복 처리 방지 없음',md:'1MD',
+   ev:'같은 웹훅 2회 수신 시 포인트 적립 2회 실행.',impact:'포인트, 쿠폰 중복 지급.',fix:'tid 유니크 제약과 처리 상태 테이블.',code:''},
+  {id:'F-08',sev:'high',area:'인프라',title:'오토스케일링 기준이 CPU 70% 단일 지표',md:'0.5MD',
+   ev:'부하 테스트에서 DB 커넥션 고갈이 CPU 한계보다 먼저 발생.',impact:'스케일아웃 전에 에러율 상승.',fix:'요청 수 기반 스케일링 추가, 최소 태스크 2개에서 4개로.',code:''},
+  {id:'F-09',sev:'high',area:'보안',title:'PG 시크릿 키가 태스크 정의 환경 변수에 평문 저장',md:'1MD',
+   ev:'ECS 태스크 정의 조회 권한이 있는 IAM 사용자 7명.',impact:'키 유출 시 결제 취소 API 악용 가능.',fix:'Secrets Manager 이관, 조회 권한 최소화.',code:''},
+  {id:'F-10',sev:'med',area:'아키텍처',title:'ERP 전표 생성이 주문 트랜잭션 내 동기 호출',md:'5MD',
+   ev:'ERP 응답 p95 2.4초.',impact:'ERP 지연이 주문 지연으로 전파.',fix:'큐 기반 비동기 처리와 일 마감 대사.',code:''},
+  {id:'F-11',sev:'med',area:'코드',title:'주문서 생성 API 중복 요청 방지 없음',md:'0.5MD',
+   ev:'앱에서 네트워크 재시도 시 주문서 2건.',impact:'미결제 주문서 누적, 통계 왜곡.',fix:'요청 ID 기반 중복 거부.',code:''},
+  {id:'F-12',sev:'med',area:'인프라',title:'S3 상품 이미지 버킷 버저닝 비활성',md:'0.5MD',
+   ev:'관리자에서 이미지 삭제 시 즉시 영구 삭제.',impact:'실수 삭제 복구 불가.',fix:'버저닝과 30일 수명 주기 규칙.',code:''},
+  {id:'F-13',sev:'med',area:'연동',title:'WMS 연동 이력을 주문번호로 바로 조회할 수 없음',md:'3MD',
+   ev:'CloudWatch 로그 검색으로 22분 소요.',impact:'CS 대응과 장애 원인 파악 지연.',fix:'연동 이력 테이블과 관리자 조회 화면.',code:''},
+  {id:'F-14',sev:'med',area:'앱',title:'앱 강제 업데이트 기준 버전을 서버에서 제어할 수 없음',md:'2MD',
+   ev:'최소 버전이 앱 번들에 하드코딩.',impact:'API 변경 시 구버전 사용자 오류.',fix:'원격 설정으로 최소 버전 관리.',code:''}
+];
+const areas=['전체',...new Set(findings.map(f=>f.area))];
+let fSev='all',fArea='전체';
+const filters=document.getElementById('filters');
+function renderFilters(){
+  filters.innerHTML='';
+  [['all','전체 심각도'],['crit','Critical'],['high','High'],['med','Medium']].forEach(([k,l])=>{
+    const b=document.createElement('button');b.className='chip'+(fSev===k?' on':'');b.textContent=l;b.onclick=()=>{fSev=k;renderFilters();renderFindings()};filters.appendChild(b)});
+  const s=document.createElement('span');s.className='sep';filters.appendChild(s);
+  areas.forEach(a=>{const b=document.createElement('button');b.className='chip'+(fArea===a?' on':'');b.textContent=a;b.onclick=()=>{fArea=a;renderFilters();renderFindings()};filters.appendChild(b)});
+}
+let opened=null;
+function renderFindings(){
+  const tb=document.getElementById('findings');
+  const list=findings.filter(f=>(fSev==='all'||f.sev===fSev)&&(fArea==='전체'||f.area===fArea));
+  tb.innerHTML=list.map(f=>`
+    <tr class="row" data-id="${f.id}"><td class="id">${f.id}</td><td><span class="sev ${f.sev}">${sevName[f.sev]}</span></td><td>${f.area}</td><td>${f.title}</td><td class="hide-m">${f.md}</td></tr>
+    ${opened===f.id?`<tr class="more"><td colspan="5" style="white-space:normal"><div class="more-grid">
+      <div><b>근거</b>${f.ev}</div><div><b>영향</b>${f.impact}</div><div><b>권고</b>${f.fix}${f.code?`<pre>${f.code}</pre>`:''}</div>
+    </div></td></tr>`:''}`).join('')||'<tr><td colspan="5" style="color:var(--ink3)">해당 조건의 항목이 없습니다.</td></tr>';
+  tb.querySelectorAll('tr.row').forEach(r=>r.onclick=()=>{opened=opened===r.dataset.id?null:r.dataset.id;renderFindings()});
+}
+opened='F-01';renderFilters();renderFindings();
+
+const sc={
+  event:{users:[50,100,200,300,400,500,600,700,800],p95:[180,190,240,310,420,690,1450,2900,4800],err:[0,0,0,0,.1,.4,2.1,6.8,14.2],
+    kv:[['최대 안정 동시 사용자','약 500명'],['p95 응답 (500명)','690ms'],['에러율 1% 초과 지점','550명 전후'],['병목','DB 커넥션 풀 고갈']],
+    note:'에러율이 오르기 시작하는 시점의 API 서버 CPU는 48%였습니다. 병목은 서버가 아니라 DB 커넥션이며, 오토스케일링이 동작하지 않는 이유도 여기에 있습니다.'},
+  checkout:{users:[50,100,200,300,400,500,600,700,800],p95:[420,460,640,980,1900,3600,5200,6100,7000],err:[0,0,.2,.9,3.4,9.8,18,26,31],
+    kv:[['최대 안정 동시 결제','약 300명'],['p95 응답 (300명)','980ms'],['에러율 1% 초과 지점','310명 전후'],['병목','ERP 동기 호출, 재고 행 잠금']],
+    note:'결제가 몰리면 ERP 전표 호출 대기 시간이 주문 트랜잭션을 붙잡아 재고 행 잠금 대기가 늘어납니다. F-04, F-10 개선 대상입니다.'},
+  after:{users:[50,100,200,300,400,500,600,700,800],p95:[170,175,200,230,260,300,360,450,620],err:[0,0,0,0,0,0,.1,.3,.8],
+    kv:[['최대 안정 동시 사용자','800명 이상'],['p95 응답 (800명)','620ms'],['에러율 1% 초과 지점','측정 범위 밖'],['적용 항목','F-04, F-06, F-08, F-10']],
+    note:'로드맵의 오픈 전 필수와 30일 항목을 적용했을 때의 예상치입니다. 실제 진단에서는 개선 후 재측정을 옵션으로 제안합니다.'}
+};
+function drawChart(k){
+  const d=sc[k],svg=document.getElementById('chart');
+  const W=640,H=300,L=52,R=50,T=20,B=40,pw=W-L-R,ph=H-T-B;
+  const maxP=Math.max(5000,Math.max(...d.p95)),maxE=35;
+  const x=i=>L+pw*i/(d.users.length-1),y=v=>T+ph-ph*v/maxP,ye=v=>T+ph-ph*v/maxE;
+  let g='';
+  for(let i=0;i<=5;i++){const v=maxP*i/5,yy=y(v);g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="#ece9e2"/><text x="${L-8}" y="${yy+4}" text-anchor="end" font-size="10.5" fill="#83878d">${Math.round(v/1000*10)/10}s</text>`}
+  for(let i=0;i<=5;i++){const v=maxE*i/5;g+=`<text x="${W-R+8}" y="${ye(v)+4}" font-size="10.5" fill="#b3261e">${Math.round(v)}%</text>`}
+  d.users.forEach((u,i)=>g+=`<text x="${x(i)}" y="${H-B+18}" text-anchor="middle" font-size="10.5" fill="#83878d">${u}</text>`);
+  g+=`<text x="${L+pw/2}" y="${H-4}" text-anchor="middle" font-size="11" fill="#4a4d52">동시 사용자</text>`;
+  const errIdx=d.err.findIndex(e=>e>=1);
+  if(errIdx>0){const xx=(x(errIdx-1)+x(errIdx))/2;g+=`<rect x="${xx}" y="${T}" width="${W-R-xx}" height="${ph}" fill="#b3261e" opacity=".05"/><line x1="${xx}" x2="${xx}" y1="${T}" y2="${T+ph}" stroke="#b3261e" stroke-dasharray="3 3"/><text x="${xx+6}" y="${T+14}" font-size="11" fill="#b3261e">에러율 1% 초과</text>`}
+  const pp=d.p95.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+  const ep=d.err.map((v,i)=>`${x(i)},${ye(v)}`).join(' ');
+  g+=`<polyline points="${ep}" fill="none" stroke="#b3261e" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  g+=`<polyline points="${pp}" fill="none" stroke="#1b1c1e" stroke-width="2"/>`;
+  d.p95.forEach((v,i)=>g+=`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="#1b1c1e"><title>${d.users[i]}명: p95 ${v}ms, 에러 ${d.err[i]}%</title></circle>`);
+  g+=`<g font-size="11"><line x1="${L}" x2="${L+18}" y1="${T-6}" y2="${T-6}" stroke="#1b1c1e" stroke-width="2"/><text x="${L+24}" y="${T-2}" fill="#1b1c1e">p95 응답시간</text><line x1="${L+120}" x2="${L+138}" y1="${T-6}" y2="${T-6}" stroke="#b3261e" stroke-dasharray="4 3"/><text x="${L+144}" y="${T-2}" fill="#b3261e">에러율</text></g>`;
+  svg.innerHTML=g;
+  document.getElementById('loadKv').innerHTML=d.kv.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join('');
+  document.getElementById('loadNote').textContent=d.note;
+}
+document.querySelectorAll('#scTabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#scTabs button').forEach(x=>x.classList.toggle('on',x===b));drawChart(b.dataset.k)});
+drawChart('event');
+
+const links=[...document.querySelectorAll('nav.toc a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+addEventListener('scroll',()=>{let cur=0;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<120)cur=i});links.forEach((a,i)=>a.classList.toggle('on',i===cur))},{passive:true});
+links[0].classList.add('on');
+</script>
+</body>
+</html>
