@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>사택 관리 플랫폼 시연 데모 (지원용 샘플)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--bg:#f4f6f9;--ink:#111827;--ink2:#4b5563;--ink3:#9ca3af;--line:#e5e7eb;--card:#fff;--pri:#2457d6;--pri-bg:#eaf0fd;--ok:#15803d;--ok-bg:#e8f6ee;--warn:#b45309;--warn-bg:#fdf3e3;--bad:#b91c1c;--bad-bg:#fdecec;--side:#0f1b33}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,system-ui,sans-serif;font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input,select{font-family:inherit;font-size:inherit}
+a{color:var(--pri);text-decoration:none}
+.top{height:56px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 20px;position:sticky;top:0;z-index:5}
+.logo{font-weight:800;font-size:17px;letter-spacing:-.02em}.logo b{color:var(--pri)}
+.demo-tag{font-size:11.5px;background:var(--warn-bg);color:var(--warn);padding:2px 8px;border-radius:10px;font-weight:600}
+.sp{flex:1}
+.rolebox{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2)}
+.rolebox select{border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff;font-weight:600;color:var(--ink)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 13px;cursor:pointer;font-weight:600;color:var(--ink)}
+.btn:hover{background:#f9fafb}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}.btn.pri:hover{background:#1d47b3}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.bad{color:var(--bad);border-color:#f3c4c4}
+.btn.sm{padding:4px 10px;font-size:12.5px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.wrap{display:flex;min-height:calc(100vh - 56px)}
+nav.side{width:232px;background:var(--side);color:#c7d2e8;padding:16px 10px;flex:none}
+nav.side .h{font-size:11px;color:#7f8db0;padding:10px 12px 6px;letter-spacing:.04em}
+nav.side a{display:flex;align-items:center;gap:8px;color:#c7d2e8;padding:8px 12px;border-radius:8px;font-size:13.5px}
+nav.side a:hover{background:#1a2a4d}
+nav.side a.on{background:var(--pri);color:#fff;font-weight:600}
+nav.side .cnt{margin-left:auto;background:#e5484d;color:#fff;font-size:11px;border-radius:9px;padding:0 6px}
+main{flex:1;padding:24px 28px 60px;min-width:0}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.02em}
+.sub{color:var(--ink2);margin:0 0 20px;font-size:13.5px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h3{margin:0 0 12px;font-size:15px}
+.kpi .l{font-size:12.5px;color:var(--ink2)}.kpi .v{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-top:2px}.kpi .d{font-size:12px;color:var(--ink3)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--ink2);font-weight:600;padding:9px 10px;border-bottom:1px solid var(--line);background:#fafbfc;white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.b{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.b.ok{background:var(--ok-bg);color:var(--ok)}.b.warn{background:var(--warn-bg);color:var(--warn)}.b.bad{background:var(--bad-bg);color:var(--bad)}.b.pri{background:var(--pri-bg);color:var(--pri)}.b.gray{background:#f1f3f5;color:var(--ink2)}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.toolbar select{border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff}
+.lock{background:repeating-linear-gradient(45deg,#fafafa,#fafafa 8px,#f1f3f5 8px,#f1f3f5 16px);border:1px dashed #cbd2d9;border-radius:12px;padding:22px;text-align:center;color:var(--ink2)}
+.lock b{display:block;font-size:15px;color:var(--ink);margin-bottom:4px}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px}
+.step{font-size:12px;padding:4px 10px;border-radius:14px;background:#f1f3f5;color:var(--ink3)}
+.step.done{background:var(--ok-bg);color:var(--ok)}.step.cur{background:var(--pri);color:#fff}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line)}.row:last-child{border:0}
+.row span:first-child{color:var(--ink2)}
+.notice{background:var(--pri-bg);color:#1e3a8a;border-radius:10px;padding:12px 14px;font-size:13px;margin-bottom:16px}
+.denied{max-width:460px;margin:80px auto;text-align:center}
+.denied .ic{font-size:40px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 18px;border-radius:10px;font-size:13.5px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+.chk{display:flex;gap:8px;align-items:center;padding:6px 0}
+.chk i{width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;color:#fff;background:#d1d5db}
+.chk i.y{background:var(--ok)}
+.guide{background:#fffbea;border:1px solid #f5e3a3;border-radius:12px;padding:14px 16px;margin-bottom:18px;font-size:13px;color:#6b5310}
+.guide ol{margin:6px 0 0 18px;padding:0}
+@media(max-width:900px){.wrap{flex-direction:column}nav.side{width:100%;display:flex;overflow-x:auto;padding:8px;gap:4px;white-space:nowrap}nav.side .h{display:none}nav.side a{flex:none}.g4,.g3,.g2{grid-template-columns:1fr}.top{flex-wrap:wrap;height:auto;padding:10px}main{padding:16px}#mnav{display:block!important}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="logo">사택<b>ON</b></div>
+  <span class="demo-tag">시연용 · 샘플 데이터</span>
+  <div class="sp"></div>
+  <div class="rolebox">역할 전환
+    <select id="role"></select>
+  </div>
+  <button class="btn sm" onclick="resetAll()">데이터 초기화</button>
+</div>
+<div class="wrap">
+  <nav class="side" id="side"></nav>
+  <main id="main"></main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const ROLES={
+  employee:{n:'발령자',menu:[['my','내 사택'],['apply','입주 신청'],['cost','매월 비용']]},
+  housing:{n:'사택담당자',menu:[['vacancy','공실·요청서'],['candidates','후보 판별'],['contracts','계약 기록'],['recon','대금 대사']]},
+  hr:{n:'인사담당자',menu:[['orders','발령 등록·목록']]},
+  approver:{n:'결재권자',menu:[['inbox','초과 결재함']]},
+  broker:{n:'공인중개사',menu:[['submit','후보 물건 제출'],['registry','등기부 열람']]},
+  mgmt:{n:'관리사무소',menu:[['dues','납부 현황'],['repair','수리 요청']]},
+  landlord:{n:'임대인',menu:[['landlord','임대 현황']]},
+  admin:{n:'사택온 운영자',menu:[['a-dash','대시보드'],['a-client','고객사 관리'],['a-acct','계정·권한'],['a-orders','발령·요청 현황'],['a-review','후보 물건 심사'],['a-contract','계약 관리'],['a-partner','파트너·임대인'],['a-bill','청구·입금'],['a-pay','지급 배치·대사'],['a-tax','세금계산서'],['a-claim','실비 청구 심사'],['a-notice','통지 내역'],['a-log','기록·설정']]},
+  auditor:{n:'감사자',menu:[['audit','감사 로그'],['recon-center','대사 센터']]}
+};
+const SEED=()=>({
+  limit:{'과장':900000,'차장':1100000,'부장':1300000},
+  orders:[
+    {id:'O-2611-01',name:'김민준',grade:'과장',org:'한국○○공사',to:'나주',date:'2026-12-01',status:'후보 확보 중'},
+    {id:'O-2611-02',name:'이서연',grade:'차장',org:'한국○○공사',to:'세종',date:'2026-11-24',status:'입주 신청 대기'},
+    {id:'O-2611-03',name:'박도윤',grade:'부장',org:'○○전력',to:'진천',date:'2026-12-15',status:'요청서 작성'}
+  ],
+  cands:[
+    {id:'H-301',oid:'O-2611-02',addr:'세종시 나성동 ○○아파트 104동',size:'84㎡',rent:1050000,deposit:20000000,broker:'세종 ○○공인중개사',ok:true},
+    {id:'H-302',oid:'O-2611-02',addr:'세종시 어진동 ○○오피스텔 12층',size:'59㎡',rent:1250000,deposit:10000000,broker:'세종 ○○공인중개사',ok:true},
+    {id:'H-303',oid:'O-2611-01',addr:'나주시 빛가람동 ○○아파트 203동',size:'84㎡',rent:820000,deposit:15000000,broker:'나주 ○○부동산',ok:null}
+  ],
+  apps:[],
+  log:[{t:'2026-11-18 09:12',u:'인사담당자',a:'발령 등록 O-2611-03'}]
+});
+let S=JSON.parse(sessionStorage.getItem('s')||'null')||SEED();
+let role=sessionStorage.getItem('r')||'employee';
+const save=()=>{sessionStorage.setItem('s',JSON.stringify(S));sessionStorage.setItem('r',role)};
+const won=n=>n.toLocaleString('ko-KR')+'원';
+const now=()=>{const d=new Date();return d.toISOString().slice(0,10)+' '+d.toTimeString().slice(0,5)};
+const toast=m=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200)};
+const log=a=>S.log.unshift({t:now(),u:ROLES[role].n,a});
+function resetAll(){S=SEED();save();toast('샘플 데이터를 처음 상태로 되돌렸습니다');render()}
+
+const sel=document.getElementById('role');
+sel.innerHTML=Object.entries(ROLES).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('');
+sel.onchange=()=>{role=sel.value;save();location.hash=ROLES[role].menu[0][0]};
+window.onhashchange=render;
+
+function owner(page){return Object.keys(ROLES).find(k=>ROLES[k].menu.some(m=>m[0]===page))}
+function pending(){return S.apps.filter(a=>a.state==='초과 결재 대기').length}
+
+function render(){
+  sel.value=role;
+  const page=(location.hash||'#'+ROLES[role].menu[0][0]).slice(1);
+  document.getElementById('side').innerHTML=`<div class="h">${ROLES[role].n} 메뉴</div>`+ROLES[role].menu.map(([k,n])=>`<a href="#${k}" class="${k===page?'on':''}">${n}${k==='inbox'&&pending()?`<span class="cnt">${pending()}</span>`:''}</a>`).join('')+
+   `<div class="h" style="margin-top:18px">시연 안내</div><a href="#guide">시연 흐름 보기</a>`;
+  const M=document.getElementById('main');
+  if(page==='guide'){M.innerHTML=guide();return}
+  const own=owner(page);
+  if(!own){M.innerHTML=`<div class="denied"><div class="ic">🔎</div><h1>페이지를 찾을 수 없습니다 (404)</h1><p class="sub">주소가 바뀌었거나 없는 화면입니다.</p><a class="btn pri" href="#${ROLES[role].menu[0][0]}">내 첫 화면으로</a></div>`;return}
+  if(own!==role){M.innerHTML=`<div class="denied"><div class="ic">🔒</div><h1>접근 권한이 없습니다</h1><p class="sub">이 화면은 <b>${ROLES[own].n}</b> 전용입니다. 현재 역할: ${ROLES[role].n}</p><button class="btn pri" onclick="role='${own}';save();render()">${ROLES[own].n}(으)로 전환해서 보기</button></div>`;return}
+  M.innerHTML=(P[page]||(()=>'<p>준비 중</p>'))();
+}
+function guide(){return `<h1>시연 흐름</h1><p class="sub">상단에서 역할을 바꿔 가며 클릭하면, 같은 샘플 데이터가 역할마다 앞뒤가 맞게 이어집니다.</p>
+<div class="guide"><b>초과 결재 → 계약 잠금 시연 (약 1분)</b><ol>
+<li>발령자 → 입주 신청: 이서연(차장, 한도 110만원)으로 <b>월세 125만원</b> 후보 신청 → 한도 초과로 결재 대기</li>
+<li>사택담당자 → 계약 기록: 해당 건이 <b>잠금</b> 상태로 표시됨</li>
+<li>결재권자 → 초과 결재함: 승인</li>
+<li>사택담당자 → 계약 기록: 잠금이 풀리고 작성 가능 → 운영자 → 계약 관리에서 지급 요건 체크</li></ol>
+한도 이내(105만원) 후보를 신청하면 결재 없이 자동 승인됩니다.</div>
+<div class="card"><h3>이 데모에서 보여 드리는 것</h3>
+<div class="row"><span>역할 전환·접근 제어</span><span>다른 역할 화면 주소로 들어가면 권한 안내, 없는 주소는 404 안내</span></div>
+<div class="row"><span>상태 연결</span><span>한 역할의 처리 결과가 다른 역할 화면에 즉시 반영 (새로고침 후에도 유지)</span></div>
+<div class="row"><span>민감 정보 표시</span><span>등기부 원본은 담당자·중개사만, 발령자는 요약본 / 임대인 계좌 가운데 자리 가림</span></div>
+<div class="row"><span>운영자 어드민</span><span>13개 메뉴 전부 실제 화면 (고객사 필터, 엑셀 다운로드 버튼 UI)</span></div></div>`}
+
+const P={};
+/* 발령자 */
+P.my=()=>{const a=S.apps.find(x=>x.oid==='O-2611-02');
+ return `<h1>내 사택</h1><p class="sub">이서연 차장 · 세종 발령 (부임 2026-11-24)</p>
+ <div class="card"><h3>진행 단계</h3><div class="steps">${['발령','후보 확보','입주 신청','결재','계약','입주'].map((s,i)=>{const cur=a?(a.state==='승인'?4:3):2;return `<span class="step ${i<cur?'done':i===cur?'cur':''}">${s}</span>`}).join('')}</div>
+ <p style="margin:12px 0 0;color:var(--ink2)">${a?`신청 물건: ${a.addr} · 상태 <span class="b ${a.state==='승인'?'ok':'warn'}">${a.state}</span>`:'후보 물건 2건이 도착했습니다. 입주 신청에서 선택해 주세요.'}</p></div>
+ <div class="grid g2" style="margin-top:14px"><div class="card"><h3>등기부 요약 (발령자용)</h3>
+ <div class="row"><span>소유 형태</span><span>개인 단독 소유</span></div><div class="row"><span>근저당</span><span>있음 (채권최고액 대비 안전 판정)</span></div><div class="row"><span>소유자</span><span>김○○</span></div>
+ <p style="font-size:12px;color:var(--ink3);margin:8px 0 0">개인정보 보호를 위해 원본 대신 요약본만 표시됩니다.</p></div>
+ <div class="card"><h3>직급 한도</h3><div class="row"><span>차장 월세 한도</span><span><b>${won(S.limit['차장'])}</b></span></div><div class="row"><span>초과 시</span><span>결재권자 승인 필요</span></div></div></div>`};
+P.apply=()=>{const list=S.cands.filter(c=>c.oid==='O-2611-02');const lim=S.limit['차장'];const done=S.apps.find(x=>x.oid==='O-2611-02');
+ return `<h1>입주 신청</h1><p class="sub">후보 물건 중 하나를 선택하세요. 월세가 직급 한도(${won(lim)}) 이내면 자동 승인됩니다.</p>
+ ${done?`<div class="notice">이미 신청했습니다: ${done.addr} · <b>${done.state}</b></div>`:''}
+ <div class="grid g2">${list.map(c=>`<div class="card"><span class="b ${c.rent<=lim?'ok':'warn'}">${c.rent<=lim?'한도 이내':'한도 초과 '+won(c.rent-lim)}</span>
+ <h3 style="margin-top:10px">${c.addr}</h3><div class="row"><span>전용면적</span><span>${c.size}</span></div><div class="row"><span>보증금</span><span>${won(c.deposit)}</span></div><div class="row"><span>월세</span><span><b>${won(c.rent)}</b></span></div>
+ <button class="btn pri" style="width:100%;margin-top:12px" ${done?'disabled':''} onclick="applyFor('${c.id}')">이 물건으로 신청</button></div>`).join('')}</div>`};
+window.applyFor=id=>{const c=S.cands.find(x=>x.id===id);const lim=S.limit['차장'];const over=c.rent>lim;
+ S.apps.push({id:'A-'+(100+S.apps.length),oid:c.oid,cid:c.id,name:'이서연',grade:'차장',addr:c.addr,rent:c.rent,over:c.rent-lim,state:over?'초과 결재 대기':'승인',contract:false});
+ S.orders.find(o=>o.id===c.oid).status=over?'초과 결재 대기':'계약 진행';log(`입주 신청 ${c.id} (${over?'한도 초과 → 결재 요청':'자동 승인'})`);save();
+ toast(over?'한도 초과 → 결재권자에게 결재 요청됨. 승인 전까지 계약 기록이 잠깁니다':'한도 이내 → 자동 승인되었습니다');render()};
+P.cost=()=>`<h1>매월 비용</h1><p class="sub">선납 후 환급 · 입주 준비 비용과 매월 비용을 한 화면에서</p>
+ <div class="grid g3"><div class="card kpi"><div class="l">이번 달 환급 예정</div><div class="v">182,000원</div><div class="d">관리비·공과금 선납분</div></div><div class="card kpi"><div class="l">입주 준비 비용</div><div class="v">340,000원</div><div class="d">이사·청소 실비</div></div><div class="card kpi"><div class="l">회사 부담 월세</div><div class="v">${won(1050000)}</div><div class="d">임대인 직접 지급</div></div></div>
+ <div class="card" style="margin-top:14px"><h3>청구 내역</h3><table><tr><th>월</th><th>항목</th><th>금액</th><th>상태</th></tr><tr><td>2026-11</td><td>관리비</td><td>132,000원</td><td><span class="b pri">환급 심사</span></td></tr><tr><td>2026-11</td><td>도시가스</td><td>50,000원</td><td><span class="b ok">환급 완료</span></td></tr></table></div>`;
+/* 사택담당자 */
+P.vacancy=()=>`<h1>공실 확인 · 주거 요청서</h1><p class="sub">발령 건별로 기존 사택 공실을 먼저 확인하고, 없으면 요청서를 중개사에게 보냅니다.</p>
+ <div class="card"><table><tr><th>발령</th><th>대상</th><th>지역</th><th>보유 공실</th><th>요청서</th></tr>${S.orders.map(o=>`<tr><td>${o.id}</td><td>${o.name} ${o.grade}</td><td>${o.to}</td><td>${o.to==='나주'?'<span class="b ok">1실</span>':'<span class="b gray">없음</span>'}</td><td><span class="b ${o.status==='요청서 작성'?'warn':'pri'}">${o.status==='요청서 작성'?'작성 필요':'발송 완료'}</span></td></tr>`).join('')}</table></div>`;
+P.candidates=()=>`<h1>후보 판별</h1><p class="sub">중개사가 제출한 물건을 등기부·한도 기준으로 판별합니다.</p>
+ <div class="card"><table><tr><th>물건</th><th>주소</th><th>월세</th><th>등기부</th><th>판별</th></tr>${S.cands.map(c=>`<tr><td>${c.id}</td><td>${c.addr}</td><td>${won(c.rent)}</td><td><a href="#" onclick="alert('등기부 원본 (담당자 열람 권한)\\n소유자: 김민호\\n근저당: ○○은행 채권최고액 1.2억');return false">원본 보기</a></td><td>${c.ok===null?`<button class="btn sm ok" onclick="judge('${c.id}')">적합 판정</button>`:'<span class="b ok">적합</span>'}</td></tr>`).join('')}</table></div>`;
+window.judge=id=>{S.cands.find(c=>c.id===id).ok=true;log('후보 판별 '+id+' 적합');save();toast('적합 판정했습니다');render()};
+P.contracts=()=>`<h1>계약 기록</h1><p class="sub">초과 결재가 끝나지 않은 건은 계약 기록이 잠겨 있습니다.</p>
+ ${S.apps.length?S.apps.map(a=>`<div class="card" style="margin-bottom:12px"><h3>${a.name} ${a.grade} · ${a.addr}</h3>
+ ${a.state==='초과 결재 대기'?`<div class="lock"><b>🔒 계약 기록 잠금</b>월세가 한도를 ${won(a.over)} 초과해 결재권자 승인 전까지 작성할 수 없습니다.</div>`:
+ a.state==='반려'?`<div class="lock"><b>반려됨</b>다른 후보로 다시 신청이 필요합니다.</div>`:
+ `<div class="row"><span>월세</span><span>${won(a.rent)}</span></div><div class="row"><span>계약 기록</span><span>${a.contract?'<span class="b ok">작성 완료</span>':`<button class="btn sm pri" onclick="writeC('${a.id}')">계약 기록 작성</button>`}</span></div>`}</div>`).join(''):'<div class="card">아직 입주 신청이 없습니다. 발령자 역할에서 입주 신청을 먼저 해 보세요.</div>'}`;
+window.writeC=id=>{S.apps.find(a=>a.id===id).contract=true;log('계약 기록 작성 '+id);save();toast('계약 기록을 저장했습니다');render()};
+P.recon=()=>`<h1>대금 대사</h1><p class="sub">승인 · 계약 · 지급 금액이 서로 맞는지 대조합니다.</p><div class="card"><table><tr><th>건</th><th>승인 금액</th><th>계약 금액</th><th>지급 금액</th><th>결과</th></tr>
+ <tr><td>A-031</td><td>980,000</td><td>980,000</td><td>980,000</td><td><span class="b ok">일치</span></td></tr><tr><td>A-027</td><td>1,100,000</td><td>1,100,000</td><td>1,150,000</td><td><span class="b bad">불일치 50,000</span></td></tr></table></div>`;
+/* 인사 */
+P.orders=()=>`<h1>발령 등록 · 목록</h1><p class="sub">발령을 등록하면 사택담당자에게 공실 확인 요청이 갑니다.</p>
+ <div class="toolbar"><button class="btn pri" onclick="newOrder()">+ 샘플 발령 등록</button></div>
+ <div class="card"><table><tr><th>발령번호</th><th>대상</th><th>소속</th><th>부임지</th><th>부임일</th><th>상태</th></tr>${S.orders.map(o=>`<tr><td>${o.id}</td><td>${o.name} ${o.grade}</td><td>${o.org}</td><td>${o.to}</td><td>${o.date}</td><td><span class="b pri">${o.status}</span></td></tr>`).join('')}</table></div>`;
+window.newOrder=()=>{const n=S.orders.length+1;S.orders.push({id:'O-2611-0'+n,name:'최하은',grade:'과장',org:'○○전력',to:'김천',date:'2026-12-20',status:'요청서 작성'});log('발령 등록 O-2611-0'+n);save();toast('발령을 등록했습니다');render()};
+/* 결재권자 */
+P.inbox=()=>{const L=S.apps.filter(a=>a.over>0);return `<h1>초과 결재함</h1><p class="sub">직급 한도를 넘는 입주 신청만 이곳으로 옵니다.</p>
+ ${L.length?L.map(a=>`<div class="card" style="margin-bottom:12px"><h3>${a.name} ${a.grade} · ${a.addr}</h3><div class="row"><span>월세 / 한도</span><span>${won(a.rent)} / ${won(S.limit[a.grade])}</span></div><div class="row"><span>초과액</span><span style="color:var(--bad);font-weight:700">${won(a.over)}</span></div>
+ <div style="margin-top:12px;display:flex;gap:8px">${a.state==='초과 결재 대기'?`<button class="btn ok" onclick="decide('${a.id}',1)">승인</button><button class="btn bad" onclick="decide('${a.id}',0)">반려</button>`:`<span class="b ${a.state==='승인'?'ok':'bad'}">${a.state}</span>`}</div></div>`).join(''):'<div class="card">대기 중인 초과 결재가 없습니다.</div>'}`};
+window.decide=(id,ok)=>{const a=S.apps.find(x=>x.id===id);a.state=ok?'승인':'반려';S.orders.find(o=>o.id===a.oid).status=ok?'계약 진행':'후보 재선정';log(`초과 결재 ${id} ${a.state}`);save();toast(ok?'승인했습니다. 계약 기록 잠금이 풀립니다':'반려했습니다');render()};
+/* 중개사 */
+P.submit=()=>`<h1>후보 물건 제출</h1><p class="sub">받은 주거 요청서에 맞는 물건을 제출합니다.</p><div class="card"><table><tr><th>요청</th><th>지역</th><th>조건</th><th></th></tr><tr><td>O-2611-03</td><td>진천</td><td>부장 · 월세 130만원 이내 · 84㎡ 내외</td><td><button class="btn sm pri" onclick="toast('후보 물건 제출 화면 (시연)')">물건 제출</button></td></tr></table></div>`;
+P.registry=()=>`<h1>등기부 열람</h1><p class="sub">중개사·담당자는 원본을 봅니다. (실제 열람 API 연동 없이 화면만 시연)</p><div class="card"><div class="row"><span>소유자</span><span>김민호</span></div><div class="row"><span>근저당</span><span>○○은행 · 채권최고액 120,000,000원</span></div><div class="row"><span>열람 일시</span><span>2026-11-18 10:02</span></div></div>`;
+/* 관리사무소·임대인 */
+P.dues=()=>`<h1>납부 현황</h1><div class="card"><table><tr><th>세대</th><th>입주자</th><th>11월 관리비</th><th>상태</th></tr><tr><td>104동 1203호</td><td>이○○</td><td>132,000원</td><td><span class="b ok">납부</span></td></tr><tr><td>203동 802호</td><td>김○○</td><td>118,000원</td><td><span class="b warn">미납</span></td></tr></table></div>`;
+P.repair=()=>`<h1>시설 수리 요청</h1><div class="card"><table><tr><th>접수</th><th>세대</th><th>내용</th><th>상태</th></tr><tr><td>11-16</td><td>104동 1203호</td><td>보일러 온수 불량</td><td><span class="b pri">기사 배정</span></td></tr></table></div>`;
+P.landlord=()=>`<h1>임대 현황</h1><div class="card"><div class="row"><span>물건</span><span>세종시 나성동 ○○아파트 104동</span></div><div class="row"><span>월세 입금 계좌</span><span>○○은행 123-****-7890</span></div><div class="row"><span>다음 입금 예정</span><span>2026-12-05 · 1,050,000원</span></div></div>`;
+/* 감사자 */
+P.audit=()=>`<h1>감사 로그</h1><p class="sub">이 데모에서 한 모든 처리가 기록됩니다.</p><div class="card"><table><tr><th>일시</th><th>역할</th><th>행위</th></tr>${S.log.map(l=>`<tr><td>${l.t}</td><td>${l.u}</td><td>${l.a}</td></tr>`).join('')}</table></div>`;
+P['recon-center']=()=>P.recon().replace('대금 대사','대사 센터');
+/* 운영자 어드민 */
+const filt=()=>`<div class="toolbar"><select><option>전체 고객사</option><option>한국○○공사</option><option>○○전력</option></select><div class="sp"></div><button class="btn sm" onclick="toast('엑셀 다운로드 (시연)')">⬇ 엑셀 다운로드</button></div>`;
+const T=(h,rows)=>`<div class="card"><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></div>`;
+P['a-dash']=()=>`<h1>대시보드</h1><p class="sub">전 고객사 사택 운영 현황</p>${filt()}<div class="grid g4"><div class="card kpi"><div class="l">관리 사택</div><div class="v">1,284</div></div><div class="card kpi"><div class="l">진행 중 발령</div><div class="v">${S.orders.length}</div></div><div class="card kpi"><div class="l">초과 결재 대기</div><div class="v">${pending()}</div></div><div class="card kpi"><div class="l">대사 불일치</div><div class="v" style="color:var(--bad)">1</div></div></div>`;
+P['a-client']=()=>`<h1>고객사 관리</h1>${filt()}<div class="grid g2"><div class="card"><h3>직급 한도표</h3>${Object.entries(S.limit).map(([g,v])=>`<div class="row"><span>${g}</span><span>${won(v)}</span></div>`).join('')}</div><div class="card"><h3>수수료 규칙</h3><div class="row"><span>위탁 운영</span><span>사택당 월 15,000원</span></div><div class="row"><span>신규 계약</span><span>건당 100,000원</span></div></div></div>`;
+P['a-acct']=()=>`<h1>계정 · 권한</h1>${filt()}`+T(['계정','역할','고객사','상태'],[['hr01','인사담당자','한국○○공사','<span class="b ok">활성</span>'],['ap02','결재권자','한국○○공사','<span class="b ok">활성</span>'],['bk11','공인중개사','-','<span class="b warn">승인 대기</span>']]);
+P['a-orders']=()=>`<h1>발령 · 요청 현황</h1><p class="sub">부임일 14일 이내인데 계약이 끝나지 않은 건은 지연 위험으로 표시합니다.</p>${filt()}`+T(['발령','대상','부임일','상태','위험'],S.orders.map(o=>{const d=Math.round((new Date(o.date)-new Date('2026-11-18'))/864e5);return [o.id,o.name+' '+o.grade,o.date+` (D-${d})`,o.status,d<=14&&o.status!=='계약 진행'?'<span class="b bad">지연 위험</span>':'<span class="b gray">정상</span>']}));
+P['a-review']=()=>`<h1>후보 물건 심사</h1>${filt()}`+T(['물건','주소','월세','판별'],S.cands.map(c=>[c.id,c.addr,won(c.rent),c.ok?'<span class="b ok">적합</span>':'<span class="b warn">심사 중</span>']));
+P['a-contract']=()=>{const req=['계약서 원본','등기부 확인','전입 신고','보증보험 가입','임대인 계좌 확인','결재 완료'];return `<h1>계약 관리</h1><p class="sub">6가지 지급 요건이 모두 충족돼야 대금 지급 배치에 올라갑니다.</p>${filt()}
+ ${S.apps.filter(a=>a.state==='승인').map(a=>{const ok=[a.contract,true,false,true,true,true];return `<div class="card" style="margin-bottom:12px"><h3>${a.name} · ${a.addr}</h3><div class="grid g3">${req.map((r,i)=>`<div class="chk"><i class="${ok[i]?'y':''}">${ok[i]?'✓':''}</i>${r}</div>`).join('')}</div><p style="margin:8px 0 0"><span class="b ${ok.every(Boolean)?'ok':'warn'}">${ok.every(Boolean)?'지급 가능':'지급 보류 · 미충족 '+ok.filter(x=>!x).length+'건'}</span></p></div>`}).join('')||'<div class="card">승인된 계약이 없습니다. 발령자 입주 신청 → (초과 시) 결재 승인 후 표시됩니다.</div>'}`};
+P['a-partner']=()=>`<h1>파트너 · 임대인</h1>${filt()}`+T(['구분','이름','계좌','상태'],[['임대인','김○○','○○은행 123-****-7890','<span class="b ok">확인</span>'],['중개사','세종 ○○공인중개사','-','<span class="b ok">제휴</span>']]);
+P['a-bill']=()=>`<h1>청구 · 입금</h1>${filt()}`+T(['고객사','청구월','청구액','입금'],[['한국○○공사','2026-10','38,420,000원','<span class="b ok">완료</span>'],['○○전력','2026-10','21,050,000원','<span class="b warn">미입금</span>']]);
+P['a-pay']=()=>`<h1>지급 배치 · 대사</h1>${filt()}`+T(['배치','대상 건수','금액','대사'],[['2026-11-05','214','231,400,000원','<span class="b ok">일치</span>'],['2026-11-20 (예정)','198','-','<span class="b gray">대기</span>']]);
+P['a-tax']=()=>`<h1>세금계산서</h1>${filt()}`+T(['고객사','월','공급가액','상태'],[['한국○○공사','2026-10','1,920,000원','<span class="b ok">발행 요청 완료 (시연)</span>']]);
+P['a-claim']=()=>`<h1>실비 청구 심사</h1><p class="sub">같은 영수증·금액이 반복되면 중복 의심으로 표시합니다.</p>${filt()}`+T(['청구자','항목','금액','판정'],[['이서연','이사비','340,000원','<span class="b ok">정상</span>'],['박○○','이사비','340,000원','<span class="b bad">중복 의심</span>']]);
+P['a-notice']=()=>`<h1>통지 내역</h1>${filt()}`+T(['일시','대상','채널','내용'],[['11-18 09:30','이서연','알림톡 (시연)','후보 물건 2건 도착'],['11-17 18:02','결재권자','메일 (시연)','초과 결재 요청']]);
+P['a-log']=()=>`<h1>기록 · 설정</h1><div class="grid g2"><div class="card"><h3>규정 버전</h3><div class="row"><span>v2 (2026-10-01)</span><span><span class="b pri">현재</span></span></div><div class="row"><span>v1 (2025-03-01)</span><span><a href="#" onclick="toast('v1 ↔ v2 개정 전후 비교 (시연)');return false">비교 보기</a></span></div></div><div class="card"><h3>결재 라인</h3><div class="row"><span>한도 이내</span><span>자동 승인</span></div><div class="row"><span>한도 초과</span><span>부서장 → 인사팀장</span></div></div></div>`;
+render();
+</script>
+</body>
+</html>
